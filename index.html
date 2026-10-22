@@ -1,6 +1,8 @@
+<!doctype html>
+<html lang="ja">
+<head>
 <meta charset="utf-8">
 <title>ブラウザドラム</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -214,16 +216,17 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 @media (hover:none) and (pointer:coarse){ .keys-line{display:none} }
 
 /* ---------- play ---------- */
-.play{display:flex; flex-direction:column; gap:8px}
+/* pads keep their height; the highway gives way on short screens */
+.play{display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:8px}
 .play-top{display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px}
 .pt-title{display:flex; align-items:baseline; gap:8px; margin-right:auto; min-width:0}
 .pt-title span{font-family:var(--font-mono); font-size:12px; color:var(--accent)}
 .pt-title b{font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pt-stats{display:flex; gap:14px; font-size:11px; color:var(--muted); white-space:nowrap}
 .pt-stats b{color:var(--fg); font-family:var(--font-mono); font-weight:500; font-size:13px; font-variant-numeric:tabular-nums}
-.hw{flex:1 1 auto; min-height:120px; position:relative; border-radius:14px; overflow:hidden; background:var(--hw-bg); touch-action:none}
+.hw{min-height:0; position:relative; border-radius:14px; overflow:hidden; background:var(--hw-bg); touch-action:none}
 .hw canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
-.gpads{flex:0 0 auto; height:clamp(110px, 32vh, 240px); display:flex; gap:8px; touch-action:none}
+.gpads{height:clamp(110px, 32vh, 240px); display:flex; gap:8px; touch-action:none}
 @media (hover:hover) and (pointer:fine){ .gpads{height:clamp(84px, 17vh, 140px)} }
 .gpad{
   position:relative; flex:1 1 0; min-width:0; overflow:hidden; cursor:pointer; touch-action:none;
@@ -336,6 +339,9 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
   .gpads{height:clamp(84px, 30vh, 140px)}
 }
 </style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
 
 <div class="app" id="app">
   <header class="bar" id="topbar">
@@ -2215,3 +2221,6 @@ const LESSONS = [
   setView('lessons');
 })();
 </script>
+
+</body>
+</html>
