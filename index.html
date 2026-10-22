@@ -92,6 +92,7 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .btn:hover{border-color:var(--muted)}
 .btn.primary{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
 .btn.big{padding:11px 26px; font-size:15px}
+.mini[aria-pressed="true"]{background:var(--fg); color:var(--bg); border-color:var(--fg)}
 .mini{font-size:13px; font-weight:700; cursor:pointer; padding:6px 10px; min-width:40px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--fg)}
 .view{flex:1; min-height:0}
 
@@ -944,6 +945,14 @@ const LESSONS = [
     return songLoading;
   }
   const songGain = () => (prefs.songVol / 100) * 0.8;
+  if (prefs.songAutoOthers == null) prefs.songAutoOthers = true;
+  // parts the player hits in song mode; the rest can play automatically
+  function activeParts(it) {
+    const want = Array.isArray(prefs.songParts) ? it.lanes.filter(k => prefs.songParts.includes(k)) : [];
+    return want.length ? want : it.lanes.slice();
+  }
+  const PART_ORDER = ['kick', 'snare', 'closed', 'open', 'pedal', 'crash'];
+  const partsLabel = (it, act) => act.length === it.lanes.length ? 'すべてのパート' : PART_ORDER.filter(k => act.includes(k)).map(k => LANE[k].jp).join('＋');
   const RANKS = [[95, 'S'], [85, 'A'], [70, 'B'], [50, 'C'], [0, 'D']];
   const rankOf = acc => RANKS.find(r => acc >= r[0])[1];
   const MASTER_ACC = 85;
@@ -1062,6 +1071,21 @@ const LESSONS = [
       '</div>' +
       '<p class="opt-label">' + from.from + '小節目の譜面</p>' + songBarGrid(it, from.from) +
       '<div class="opts">' +
+        (() => {
+          const act = activeParts(it);
+          const presets = [['kick', ['kick']], ['ks', ['kick', 'snare']], ['ksh', ['kick', 'snare', 'closed']], ['all', null]]
+            .filter(([, ls]) => !ls || ls.every(k => it.lanes.includes(k)));
+          const pname = { kick: 'キックだけ', ks: 'キック＋スネア', ksh: 'キック＋スネア＋HH', all: 'すべて' };
+          const same = ls => (ls ? ls.slice().sort().join() : it.lanes.slice().sort().join()) === act.slice().sort().join();
+          return '<div class="opt wide"><span class="opt-label">練習するパート</span>' +
+            '<div class="opt-row">' + presets.map(([id, ls]) => '<button class="mini" type="button" data-act="preset" data-p="' + id + '" aria-pressed="' + same(ls) + '">' + pname[id] + '</button>').join('') + '</div>' +
+            '<div class="seg" style="flex-wrap:wrap">' + it.lanes.map(k => '<button class="segb" type="button" data-act="part" data-k="' + k + '" aria-pressed="' + act.includes(k) + '">' + LANE[k].jp + '</button>').join('') + '</div>' +
+            (act.length < it.lanes.length ?
+              '<div class="opt-row"><span class="opt-note">選ばなかったパート：</span><div class="seg">' +
+              '<button class="segb" type="button" data-act="others" data-v="1" aria-pressed="' + prefs.songAutoOthers + '">自動で鳴らす</button>' +
+              '<button class="segb" type="button" data-act="others" data-v="0" aria-pressed="' + !prefs.songAutoOthers + '">鳴らさない</button></div></div>' : '') +
+            '</div>';
+        })() +
         '<div class="opt"><span class="opt-label">再生速度</span><div class="seg">' +
           [1, 0.9, 0.8, 0.7].map(r => '<button class="segb" type="button" data-act="rate" data-r="' + r + '" aria-pressed="' + (prefs.songRate === r) + '">' + Math.round(r * 100) + '%</button>').join('') +
         '</div></div>' +
@@ -1071,7 +1095,7 @@ const LESSONS = [
         '<button class="btn" type="button" data-act="demo">お手本を聴く</button>' +
         '<button class="btn" type="button" data-act="edit">譜面を編集</button></div>' +
       '<p class="record">' + (EDIT[it.chart] ? '<b>編集版の譜面</b>で遊びます（' + fmtTime(EDIT[it.chart].updatedAt) + ' 更新' + (EDIT[it.chart].shared ? '・共有データに保存済み' : '') + '）。<br>' : '') +
-        (pr && pr.best != null ? 'ベスト（全曲・速度100%） <b>' + pr.rank + ' ' + pr.best.toFixed(1) + '%</b>' : 'まだ全曲を通していません。区間と速度を選んで少しずつ練習できます。') +
+        (pr && pr.best != null ? 'ベスト（全曲・速度100%） <b>' + pr.rank + ' ' + pr.best.toFixed(1) + '%</b>' : 'まだ全曲を通していません。区間・パート・速度を選んで少しずつ練習できます。') +
         (prefs.songRate < 1 ? '<br>速度を下げると、曲の音程も下がります。' : '') + '</p>' +
       '<p class="keys-line">キー：' + it.lanes.map(k => LANE[k].jp + ' <kbd>' + LANE[k].cap + '</kbd>').join('　') + '　やめる <kbd>Esc</kbd></p>' +
       '<p class="credit">音源：' + SONG.artist + '「' + SONG.title + '」</p>';
@@ -1131,6 +1155,20 @@ const LESSONS = [
     if (act === 'metro') { prefs.metro = b.dataset.v === '1'; savePrefs(); renderDetail(); return; }
     if (act === 'rate') { prefs.songRate = Number(b.dataset.r); savePrefs(); renderDetail(); return; }
     if (act === 'edit') { openEditor(byId(sel.id).chart); return; }
+    if (act === 'part' || act === 'preset') {
+      const it = byId(sel.id);
+      let cur = activeParts(it);
+      if (act === 'part') {
+        const k = b.dataset.k;
+        cur = cur.includes(k) ? cur.filter(x => x !== k) : cur.concat(k);
+        if (!cur.length) return;
+      } else {
+        cur = { kick: ['kick'], ks: ['kick', 'snare'], ksh: ['kick', 'snare', 'closed'], all: it.lanes }[b.dataset.p];
+      }
+      prefs.songParts = cur.length === it.lanes.length ? null : cur.slice();
+      savePrefs(); renderDetail(); return;
+    }
+    if (act === 'others') { prefs.songAutoOthers = b.dataset.v === '1'; savePrefs(); renderDetail(); return; }
     if (act === 'start') startGame(false);
     if (act === 'demo') startGame(true);
   });
@@ -1218,12 +1256,16 @@ const LESSONS = [
     const fromBar = secs[prefs.songFrom].from, toBar = secs[Math.max(prefs.songFrom, prefs.songTo)].to;
     const base = bt[fromBar - 1], endBase = bt[toBar];
     const beat = SONG.beat / rate, step = beat / it.spb, barDur = beat * 4;
-    const notes = chartNotes(it.chart)
+    const parts = activeParts(it);
+    const partView = Object.assign({}, it, { lanes: parts });
+    const inRange = chartNotes(it.chart)
       .filter(n => n[0] >= base - 0.03 && n[0] < endBase - 0.03)
       .map(n => ({ t: (n[0] - base) / rate, lane: n[1], state: 0, j: null, dt: null }));
+    const notes = inRange.filter(n => parts.includes(n.lane));
+    const others = inRange.filter(n => !parts.includes(n.lane));
     notes.sort((a, b) => a.t - b.t || LANE_ORDER.indexOf(a.lane) - LANE_ORDER.indexOf(b.lane));
     const laneNotes = {}, laneHead = {};
-    it.lanes.forEach(k => { laneNotes[k] = []; laneHead[k] = 0; });
+    parts.forEach(k => { laneNotes[k] = []; laneHead[k] = 0; });
     notes.forEach(n => laneNotes[n.lane].push(n));
 
     const fromStart = fromBar === 1;
@@ -1231,6 +1273,7 @@ const LESSONS = [
     const events = [];
     if (!fromStart) for (let i = 0; i < 4; i++) events.push({ t: -barDur + i * beat, id: 'sticks', gain: i === 0 ? 0.7 : 0.45 });
     if (auto) notes.forEach(n => events.push({ t: n.t, id: n.lane, gain: 1 }));
+    if (auto || prefs.songAutoOthers) others.forEach(n => events.push({ t: n.t, id: n.lane, gain: 0.85 }));
     events.sort((a, b) => a.t - b.t);
 
     const t0 = ctx.currentTime + 0.4 + Math.max(lead, barDur);
@@ -1248,18 +1291,18 @@ const LESSONS = [
     const lastT = notes.length ? notes[notes.length - 1].t : 0;
     const totalBars = toBar - fromBar + 1;
     G = {
-      L: it, auto, bpm: Math.round(SONG.bpm * rate), beat, step, barDur, totalBars, notes, laneNotes, laneHead, events, ev: 0, autoIdx: 0,
+      L: partView, auto, bpm: Math.round(SONG.bpm * rate), beat, step, barDur, totalBars, notes, laneNotes, laneHead, events, ev: 0, autoIdx: 0,
       t0, endT: Math.max(totalBars * barDur, lastT + WIN.good) + (toBar === SONG.bars ? 1.2 : 0.3),
       stats: { perfect: 0, great: 0, good: 0, miss: 0 }, combo: 0, maxCombo: 0, extra: 0,
       fx: [], press: {}, drawStart: 0, hud: {},
-      song: { src, sg }, rate, barOffset: fromBar - 1, fullRun: fromStart && toBar === SONG.bars && rate === 1,
-      rangeText: fromBar + '〜' + toBar + '小節' + (rate < 1 ? '・速度' + Math.round(rate * 100) + '%' : ''),
+      song: { src, sg }, rate, barOffset: fromBar - 1, fullRun: fromStart && toBar === SONG.bars && rate === 1 && parts.length === it.lanes.length,
+      rangeText: fromBar + '〜' + toBar + '小節' + (rate < 1 ? '・速度' + Math.round(rate * 100) + '%' : '') + (parts.length < it.lanes.length ? '・' + partsLabel(it, parts) : ''),
     };
     clockOff = null;
     $('ptId').textContent = '♪';
-    $('ptName').textContent = it.name + (auto ? '（お手本）' : '');
+    $('ptName').textContent = it.name + (parts.length < it.lanes.length ? '・' + partsLabel(it, parts) : '') + (auto ? '（お手本）' : '');
     $('ptBpm').textContent = G.bpm;
-    buildGamePads(it);
+    buildGamePads(partView);
     resizeHW();
     layoutLanes();
     schedTimer = setInterval(schedule, 20);
@@ -1668,7 +1711,7 @@ const LESSONS = [
     if (isSong) {
       if (acc >= MASTER_ACC && g.rate < 1) msgs.push('速度を上げて挑戦してみましょう。');
       else if (acc < 60) msgs.push('速度を落とすか、区間を絞って練習すると取り組みやすくなります。');
-      if (!g.fullRun) msgs.push('全曲を速度100%で通したときだけ、ベスト記録に残ります。');
+      if (!g.fullRun) msgs.push('全曲・速度100%・すべてのパートで通したときだけ、ベスト記録に残ります。');
     }
     else if (pr.mastered && g.bpm >= L.goal && acc >= MASTER_ACC) msgs.push('目標テンポで叩けました。次のレッスンへ進みましょう。');
     else if (acc >= MASTER_ACC) msgs.push('テンポを上げて挑戦してみましょう（目標 ' + L.goal + ' BPM）。');
