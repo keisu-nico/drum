@@ -24,6 +24,8 @@
   /* judgment colors on page surfaces */
   --r-perfect:#A86400; --r-great:#1F7A4D; --r-good:#2F62C8; --r-miss:#6B7380;
   --ed-odd:rgba(20,30,45,.035);
+  /* player colours (online) */
+  --p1:#D9473E; --p2:#22935F; --p3:#3473D6; --p4:#C98A12;
   /* note highway: a fixed dark display in both themes */
   --hw-bg:#12151A;
 
@@ -40,6 +42,7 @@
     --g-crash:#FF9F43; --g-open:#F0CF6A; --g-closed:#E3B341; --g-pedal:#BFA052; --g-snare:#EEF2F7; --g-kick:#E5544B;
     --r-perfect:#F2B24C; --r-great:#4CC38A; --r-good:#79AEFF; --r-miss:#8F9AA8;
     --ed-odd:rgba(255,255,255,.035);
+    --p1:#EF6157; --p2:#4CC38A; --p3:#79AEFF; --p4:#F2B24C;
     color-scheme:dark;
   }
 }
@@ -51,6 +54,7 @@
   --g-crash:#FF9F43; --g-open:#F0CF6A; --g-closed:#E3B341; --g-pedal:#BFA052; --g-snare:#EEF2F7; --g-kick:#E5544B;
   --r-perfect:#F2B24C; --r-great:#4CC38A; --r-good:#79AEFF; --r-miss:#8F9AA8;
   --ed-odd:rgba(255,255,255,.035);
+  --p1:#EF6157; --p2:#4CC38A; --p3:#79AEFF; --p4:#F2B24C;
   color-scheme:dark;
 }
 [hidden]{display:none!important}
@@ -284,6 +288,43 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 }
 .copybox{width:100%; min-height:180px; font-family:var(--font-mono); font-size:11px; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:8px; -webkit-user-select:text; user-select:text}
 
+/* ---------- online ---------- */
+.online{display:flex; flex-direction:column; gap:10px}
+.on-lobby{flex:1; min-height:0; overflow-y:auto; touch-action:pan-y; display:flex; flex-direction:column; gap:14px; max-width:760px; padding-bottom:12px}
+.on-lobby h2{margin:0; font-family:var(--font-display); font-weight:800; font-size:24px; letter-spacing:.04em}
+.on-lobby > p{margin:0; font-size:13px; line-height:1.7; color:var(--muted); max-width:62ch}
+.on-name{display:flex; flex-direction:column; gap:6px; max-width:320px}
+.on-cards{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px}
+.on-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px}
+.on-card h3{margin:0; font-size:15px}
+.on-card p{margin:0; font-size:12px; line-height:1.6; color:var(--muted)}
+.field{font:inherit; font-size:15px; padding:9px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--fg); min-width:0; -webkit-user-select:text; user-select:text}
+.field.code{font-family:var(--font-mono); letter-spacing:.24em; text-transform:uppercase}
+.on-msg{margin:0; font-size:13px; line-height:1.6; color:var(--muted)}
+.on-msg.err{color:var(--err)} .on-msg.ok{color:var(--ok)}
+.on-room{flex:1; min-height:0; display:flex; flex-direction:column; gap:10px}
+.on-head{display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px}
+.on-head .eyebrow{margin:0}
+.on-code{font-family:var(--font-mono); font-size:24px; letter-spacing:.2em; line-height:1}
+.on-via{font-size:11px; color:var(--muted)}
+.on-head .grow{margin-right:auto}
+.on-players{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px}
+@media (max-width:760px){ .on-players{grid-template-columns:repeat(2, minmax(0, 1fr))} }
+.pl{position:relative; border:1px solid var(--line); border-top:4px solid var(--pc, var(--line)); border-radius:12px; background:var(--surface); padding:7px 10px 8px; display:flex; flex-direction:column; gap:3px; min-width:0}
+.pl.empty{border-style:dashed; border-top-width:1px; color:var(--muted); justify-content:center; font-size:12px; min-height:64px}
+.pl-top{display:flex; align-items:center; gap:6px; min-width:0}
+.pl-name{font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
+.pl-tag{flex-shrink:0; font-size:10px; font-weight:700; padding:0 6px; border-radius:999px; border:1px solid currentColor; color:var(--muted)}
+.pl-mute{margin-left:auto; flex-shrink:0; font-size:11px; padding:1px 8px; border:1px solid var(--line); border-radius:999px; background:var(--bg); color:var(--fg); cursor:pointer}
+.pl-mute[aria-pressed="true"]{color:var(--err); border-color:var(--err)}
+.pl-lat{font-family:var(--font-mono); font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; line-height:1.5}
+.pl-lat b{color:var(--fg); font-weight:500}
+.pl-lat b.warn{color:var(--err)}
+.pl-lights{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:3px; margin-top:2px}
+.pl-lights span{position:relative; height:16px; border-radius:4px; background:var(--surface-2); font-family:var(--font-mono); font-size:8px; line-height:16px; text-align:center; color:var(--muted); overflow:hidden}
+.pl-lights span i{position:absolute; inset:0; background:var(--pc); opacity:0}
+.on-kit{flex:1; min-height:0}
+
 /* ---------- dialogs ---------- */
 .backdrop{
   position:fixed; inset:0; z-index:20; background:var(--scrim); display:grid; place-items:center;
@@ -299,6 +340,13 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .sheet h3{margin:4px 0 0; font-size:11px; font-weight:700; letter-spacing:.14em; color:var(--muted)}
 .note{margin:0; font-size:12px; line-height:1.7; color:var(--muted)}
 .note b{color:var(--fg)}
+.keymap{display:flex; flex-direction:column; border-top:1px solid var(--line)}
+.krow{display:grid; grid-template-columns:7.5em minmax(0,1fr); align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13px}
+.kchips{display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+.kchip{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:12px; padding:3px 8px; border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; background:var(--bg); color:var(--fg); cursor:pointer}
+.kchip span{color:var(--muted)}
+.kadd{font-size:12px; font-weight:700; padding:3px 10px; border:1px dashed var(--muted); border-radius:6px; background:transparent; color:var(--muted); cursor:pointer}
+.kadd[aria-pressed="true"]{border-style:solid; border-color:var(--accent); color:var(--accent)}
 .srow{display:grid; grid-template-columns:8.5em minmax(0,1fr) auto; align-items:center; gap:10px; font-size:13px}
 .srow input[type=range]{width:100%; accent-color:var(--accent)}
 .srow select{font:inherit; font-size:13px; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-width:0}
@@ -353,6 +401,7 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
     <nav class="tabs" role="tablist" aria-label="モード">
       <button class="tab" id="tabLessons" type="button" role="tab" aria-selected="true" data-view="lessons">レッスン</button>
       <button class="tab" id="tabFree" type="button" role="tab" aria-selected="false" data-view="free">フリー演奏</button>
+      <button class="tab" id="tabOnline" type="button" role="tab" aria-selected="false" data-view="online">オンライン</button>
     </nav>
     <button class="btn" id="openSettings" type="button">設定</button>
     <p class="rec">推奨ブラウザ：<b>Firefox</b>（スマホでは Chrome より音の遅れが少なくなる場合があります）</p>
@@ -361,6 +410,39 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
   <section class="view lessons" id="viewLessons">
     <div class="lesson-list" id="lessonList"></div>
     <div class="lesson-detail" id="lessonDetail"></div>
+  </section>
+
+  <section class="view online" id="viewOnline" hidden>
+    <div class="on-lobby" id="onLobby">
+      <h2>オンライン</h2>
+      <p>最大4人で、それぞれのドラムを鳴らし合えます。誰か1人が部屋を作り、表示されたコードをほかの人に伝えてください。</p>
+      <p id="onVia"></p>
+      <label class="on-name" for="onName"><span class="opt-label">あなたの名前</span><input class="field" id="onName" maxlength="12" autocomplete="nickname"></label>
+      <div class="on-cards">
+        <div class="on-card">
+          <h3>部屋を作る</h3>
+          <p>あなたがホストになります。作った部屋のコードを、一緒に遊ぶ人に伝えます。</p>
+          <button class="btn primary" id="onCreate" type="button">部屋を作る</button>
+        </div>
+        <div class="on-card">
+          <h3>部屋に入る</h3>
+          <p>ホストから伝えられた6文字のコードを入力します。</p>
+          <input class="field code" id="onCode" maxlength="6" placeholder="例 K7Q2MX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="部屋のコード">
+          <button class="btn" id="onJoin" type="button">入室する</button>
+        </div>
+      </div>
+      <p class="on-msg" id="onMsg" role="status"></p>
+    </div>
+    <div class="on-room" id="onRoom" hidden>
+      <div class="on-head">
+        <div class="grow"><p class="eyebrow">部屋のコード</p><span class="on-code" id="onCodeShow"></span></div>
+        <button class="btn" id="onCopy" type="button">コードをコピー</button>
+        <button class="btn" id="onLeave" type="button">退室する</button>
+        <span class="on-via" id="onState" style="flex-basis:100%"></span>
+      </div>
+      <div class="on-players" id="onPlayers"></div>
+      <div class="stage on-kit" id="onKit" aria-label="あなたのドラム"></div>
+    </div>
   </section>
 
   <section class="view free" id="viewFree" hidden>
@@ -443,6 +525,10 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
     <p class="lat" id="lat">遅延：音を一度鳴らすと表示されます</p>
     <label class="srow" for="calib"><span>判定タイミング補正</span><input id="calib" type="range" min="-150" max="150" step="5" value="0"><output id="calibOut">0 ms</output></label>
     <p class="note">叩くたびに「おそい」と判定されるならプラス、「はやい」ならマイナスへ動かします。リザルト画面のボタンから自動で合わせることもできます。</p>
+    <h3>キー割り当て</h3>
+    <div class="keymap" id="keymap"></div>
+    <p class="note" id="keyNote">「＋ 追加」を押してから、割り当てたいキーを押します。割り当て済みのキー（I × など）を押すと外せます。Esc は「やめる」用のため割り当てられません。</p>
+    <div class="row"><button class="btn" id="keysReset" type="button">キーを初期設定に戻す</button></div>
     <p class="note">推奨ブラウザ：<b>Firefox</b>。スマホでは Chrome より音の遅れが少なくなる場合があります。</p>
     <div class="row"><button class="btn" id="closeSettings" type="button">閉じる</button></div>
   </section>
@@ -475,7 +561,7 @@ const LESSONS = [
     tip: '1拍目と3拍目にキック、2拍目と4拍目にスネア。2・4拍のスネアを「バックビート」と呼び、ロックやポップスのほとんどがこの形を土台にしています。',
     p: { snare: '----x-------x---', kick: 'x-------x-------' } },
   { id: '1-3', step: 1, name: '8分のハイハット', bpm: 70, goal: 110, div: 16,
-    tip: '1拍を2つに分けて刻みます。音の粒をそろえることだけに集中しましょう。キーボードでは F と D を交互に使えます。',
+    tip: '1拍を2つに分けて刻みます。音の粒をそろえることだけに集中しましょう。キーボードではクローズHHの2つのキーを交互に使えます。',
     p: { closed: 'x-x-x-x-x-x-x-x-' } },
   { id: '1-4', step: 1, name: '8ビート', bpm: 70, goal: 110, div: 16,
     tip: 'ハイハットを8分で刻みながら、1・3拍目でキック、2・4拍目でスネアを重ねます。同時に鳴る音どうしがずれないように。',
@@ -496,7 +582,7 @@ const LESSONS = [
          snare: '----x-------x---|----x-------x---', kick: 'x-------x-x-----|x-------x-x-----' } },
 
   { id: '3-1', step: 3, name: '16分のハイハット', bpm: 60, goal: 90, div: 16,
-    tip: '1拍を4つに分けて刻みます。数え方は「1 e & a」。キーボードでは F と D を交互に使うと楽に刻めます。',
+    tip: '1拍を4つに分けて刻みます。数え方は「1 e & a」。キーボードではクローズHHの2つのキーを交互に使うと楽に刻めます。',
     p: { closed: 'xxxxxxxxxxxxxxxx', snare: '----x-------x---', kick: 'x-------x-------' } },
   { id: '3-2', step: 3, name: '16ビート', bpm: 65, goal: 95, div: 16,
     tip: '1拍目の「a」と3拍目の「&」にキックが入ります。16分のハイハットを物差しにして、キックの位置を合わせましょう。',
@@ -618,25 +704,51 @@ const LESSONS = [
 
   /* ================= instruments ================= */
   const SOUNDS = [
-    { id: 'crash',  label: 'CRASH',     codes: ['KeyI'],          cap: 'I' },
-    { id: 'open',   label: 'OPEN HH',   codes: ['KeyR'],          cap: 'R' },
-    { id: 'closed', label: 'CLOSED HH', codes: ['KeyF', 'KeyD'],  cap: 'F' },
-    { id: 'pedal',  label: 'PEDAL HH',  codes: ['KeyV'],          cap: 'V' },
-    { id: 'snare',  label: 'SNARE',     codes: ['KeyJ'],          cap: 'J' },
-    { id: 'sticks', label: 'STICKS',    codes: ['KeyK'],          cap: 'K' },
-    { id: 'kick',   label: 'KICK',      codes: ['Space', 'KeyB'], cap: 'Space' },
+    { id: 'crash',  label: 'CRASH',     jp: 'クラッシュ' },
+    { id: 'open',   label: 'OPEN HH',   jp: 'オープンHH' },
+    { id: 'closed', label: 'CLOSED HH', jp: 'クローズHH' },
+    { id: 'pedal',  label: 'PEDAL HH',  jp: 'ペダルHH' },
+    { id: 'snare',  label: 'SNARE',     jp: 'スネア' },
+    { id: 'sticks', label: 'STICKS',    jp: 'スティック' },
+    { id: 'kick',   label: 'KICK',      jp: 'キック' },
   ];
+  // key bindings (KeyboardEvent.code), editable in settings
+  const DEFAULT_KEYS = {
+    crash: ['KeyI', 'KeyO'], sticks: ['KeyY'], open: ['KeyE', 'KeyR'], closed: ['KeyD', 'KeyF'],
+    pedal: ['KeyC', 'KeyV'], snare: ['KeyJ', 'KeyK'], kick: ['KeyB', 'KeyN', 'Space'],
+  };
+  const KEY_NAMES = { Space: 'Space', Enter: 'Enter', Backspace: 'BS', Semicolon: ';', Quote: "'", Comma: ',', Period: '.', Slash: '/',
+    Backslash: '\\', BracketLeft: '[', BracketRight: ']', Minus: '-', Equal: '=', Backquote: '`', IntlRo: 'ろ', IntlYen: '¥',
+    ArrowLeft: '←', ArrowRight: '→', ArrowUp: '↑', ArrowDown: '↓', NumpadAdd: 'Num+', NumpadSubtract: 'Num-', NumpadEnter: 'NumEnter' };
+  const keyLabel = code => KEY_NAMES[code] || (/^Key[A-Z]$/.test(code) ? code.slice(3) : /^Digit\d$/.test(code) ? code.slice(5) : /^Numpad\d$/.test(code) ? 'Num' + code.slice(6) : code);
+  let KEYS = {};
   const CODE_TO_ID = {};
-  SOUNDS.forEach(s => s.codes.forEach(c => (CODE_TO_ID[c] = s.id)));
+  function applyKeys() {
+    Object.keys(CODE_TO_ID).forEach(c => delete CODE_TO_ID[c]);
+    SOUNDS.forEach(s => {
+      s.codes = (KEYS[s.id] || []).slice();
+      s.codes.forEach(c => (CODE_TO_ID[c] = s.id));
+      s.cap = s.codes.length ? s.codes.map(keyLabel).join(' / ') : '—';
+      if (LANE[s.id]) LANE[s.id].cap = s.cap;
+    });
+  }
+  (function loadKeys() {
+    const saved = prefs.keys && typeof prefs.keys === 'object' ? prefs.keys : null;
+    SOUNDS.forEach(s => {
+      const v = saved && Array.isArray(saved[s.id]) ? saved[s.id].filter(c => typeof c === 'string' && c !== 'Escape') : null;
+      KEYS[s.id] = v || DEFAULT_KEYS[s.id].slice();
+    });
+  })();
 
   const LANE = {
-    crash:  { label: 'CRASH',     jp: 'クラッシュ',  short: 'CR', cap: 'I',     main: false },
-    open:   { label: 'OPEN HH',   jp: 'オープンHH',  short: 'OH', cap: 'R',     main: false },
-    closed: { label: 'CLOSED HH', jp: 'クローズHH',  short: 'HH', cap: 'F / D', main: true },
-    snare:  { label: 'SNARE',     jp: 'スネア',      short: 'SN', cap: 'J',     main: true },
-    kick:   { label: 'KICK',      jp: 'キック',      short: 'BD', cap: 'Space', main: true },
-    pedal:  { label: 'PEDAL HH',  jp: 'ペダルHH',    short: 'PH', cap: 'V',     main: false },
+    crash:  { label: 'CRASH',     jp: 'クラッシュ',  short: 'CR', main: false },
+    open:   { label: 'OPEN HH',   jp: 'オープンHH',  short: 'OH', main: false },
+    closed: { label: 'CLOSED HH', jp: 'クローズHH',  short: 'HH', main: true },
+    snare:  { label: 'SNARE',     jp: 'スネア',      short: 'SN', main: true },
+    kick:   { label: 'KICK',      jp: 'キック',      short: 'BD', main: true },
+    pedal:  { label: 'PEDAL HH',  jp: 'ペダルHH',    short: 'PH', main: false },
   };
+  applyKeys();
   const LANE_ORDER = ['crash', 'open', 'closed', 'snare', 'kick', 'pedal']; // notation: top to bottom
   const PAD_ORDER = ['open', 'closed', 'pedal', 'snare', 'crash', 'kick'];   // touch pads: left to right
 
@@ -721,28 +833,29 @@ const LESSONS = [
   }
 
   // play a sample now or at a scheduled context time
-  function trigger(id, when, gain) {
+  function trigger(id, when, gain, dest, group) {
     if (!ctx) return;
     const buf = buffers[id];
     if (!buf) return;
+    group = group || 'me';
     const t = Math.max(when || 0, ctx.currentTime);
-    if (id === 'closed' || id === 'pedal') choke(t);
+    if (id === 'closed' || id === 'pedal') choke(t, group);
     const src = ctx.createBufferSource();
     src.buffer = buf;
     const g = ctx.createGain();
     g.gain.value = (gain == null ? 1 : gain) * (0.95 + Math.random() * 0.05);
-    src.connect(g); g.connect(master);
+    src.connect(g); g.connect(dest || master);
     src.start(t, offsets[id] || 0);
     if (id === 'open') {
-      const v = { src, g, start: t };
+      const v = { src, g, start: t, group };
       voices.push(v);
       src.onended = () => { voices = voices.filter(x => x !== v); };
     }
   }
   // closing the hi-hat cuts off a ringing open hi-hat
-  function choke(t) {
+  function choke(t, group) {
     voices = voices.filter(v => {
-      if (v.start >= t) return true;
+      if (v.start >= t || (v.group || 'me') !== (group || 'me')) return true;
       try {
         v.g.gain.setValueAtTime(v.g.gain.value, t);
         v.g.gain.linearRampToValueAtTime(0, t + 0.035);
@@ -781,7 +894,7 @@ const LESSONS = [
 
   /* ================= views ================= */
   let view = 'lessons';
-  const views = { lessons: $('viewLessons'), free: $('viewFree'), play: $('viewPlay'), edit: $('viewEdit') };
+  const views = { lessons: $('viewLessons'), free: $('viewFree'), play: $('viewPlay'), edit: $('viewEdit'), online: $('viewOnline') };
   function setView(v) {
     view = v;
     Object.keys(views).forEach(k => (views[k].hidden = k !== v));
@@ -795,25 +908,40 @@ const LESSONS = [
   const SHAPE = { crash: 'cym crash', open: 'cym open', closed: 'cym closed', pedal: 'pedal', snare: 'snare', sticks: 'sticks', kick: 'kick' };
   const CYMBAL = { crash: 1, open: 1, closed: 1 };
   const reduceMotion = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
-  const stage = $('stage'), freePads = {};
-  for (const s of SOUNDS) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'pad';
-    b.style.gridArea = s.id;
-    b.setAttribute('aria-label', s.label + '（' + s.cap + '）');
-    b.innerHTML = '<kbd>' + s.cap + '</kbd><span class="shape ' + SHAPE[s.id] + '"></span><span class="name">' + s.label + '</span><span class="ring"></span>';
-    b.addEventListener('pointerdown', e => {
-      if (e.button > 0) return;
-      e.preventDefault();
-      hitNow(s.id);
-      flashFree(s.id);
-    });
-    stage.appendChild(b);
-    freePads[s.id] = { shape: b.querySelector('.shape'), ring: b.querySelector('.ring') };
+  // a full kit of pads in a .stage element; onHit(id) runs on each tap
+  function makeKit(el, onHit) {
+    const pads = {};
+    for (const s of SOUNDS) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pad';
+      b.style.gridArea = s.id;
+      b.setAttribute('aria-label', s.label + '（' + s.cap + '）');
+      b.innerHTML = '<kbd>' + s.cap + '</kbd><span class="shape ' + SHAPE[s.id] + '"></span><span class="name">' + s.label + '</span><span class="ring"></span>';
+      b.addEventListener('pointerdown', e => {
+        if (e.button > 0) return;
+        e.preventDefault();
+        onHit(s.id);
+      });
+      el.appendChild(b);
+      pads[s.id] = { shape: b.querySelector('.shape'), ring: b.querySelector('.ring'), kbd: b.querySelector('kbd'), el: b };
+    }
+    return {
+      flash: id => flashPad(pads[id], id),
+      refresh() {
+        SOUNDS.forEach(s => {
+          const p = pads[s.id];
+          p.kbd.textContent = s.cap;
+          p.el.setAttribute('aria-label', s.label + '（' + s.cap + '）');
+        });
+      },
+    };
   }
-  function flashFree(id) {
-    const p = freePads[id];
+  const stage = $('stage');
+  const freeKit = makeKit(stage, id => { hitNow(id); freeKit.flash(id); });
+  const flashFree = id => freeKit.flash(id);
+  function refreshFreeKeys() { freeKit.refresh(); if (typeof onKitApi !== 'undefined' && onKitApi) onKitApi.refresh(); }
+  function flashPad(p, id) {
     if (!p || !p.ring.animate) return;
     p.ring.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: 'ease-out' });
     if (reduceMotion.matches) return;
@@ -967,18 +1095,6 @@ const LESSONS = [
     let h = '<div class="lh"><div class="lh-top"><h2>レッスン</h2><span class="lh-prog">習得 <b>' + done + '</b> / ' + L_ALL.length + '</span></div>' +
       '<div class="prog"><i style="width:' + (done / L_ALL.length * 100).toFixed(1) + '%"></i></div>' +
       '<p>目標テンポで A ランク（精度 ' + MASTER_ACC + '%）以上を取ると、そのフレーズを「習得」です。</p></div>';
-    if (SONG_ITEMS.length) {
-      h += '<div class="lgroup"><h3>曲で練習<span>' + SONG.artist + '「' + SONG.title + '」</span></h3>';
-      for (const it of SONG_ITEMS) {
-        const pr = progress[it.id];
-        const st = pr && pr.best != null ? '<span class="rank rank-' + pr.rank + '">' + pr.rank + '</span>' + Math.round(pr.best) + '%' : '<span>—</span>';
-        h += '<button class="lrow" type="button" data-id="' + it.id + '" aria-current="' + (it.id === sel.id) + '">' +
-          '<span class="lnum song">♪</span>' +
-          '<span class="lmain"><span class="lname">' + it.name + (EDIT[it.chart] ? ' <span class="done">編集版</span>' : '') + '</span><span class="lmeta">' + it.lanes.map(k => LANE[k].short).join(' ') + ' · ' + SONG.bpm + ' BPM · ' + it.count + ' ノーツ</span></span>' +
-          '<span class="lstat">' + st + '</span></button>';
-      }
-      h += '</div>';
-    }
     let step = 0;
     for (const L of L_ALL) {
       if (L.step !== step) {
@@ -996,6 +1112,18 @@ const LESSONS = [
         '<span class="lstat">' + st + '</span></button>';
     }
     h += '</div>';
+    if (SONG_ITEMS.length) {
+      h += '<div class="lgroup"><h3>曲で練習<span>' + SONG.artist + '「' + SONG.title + '」</span></h3>';
+      for (const it of SONG_ITEMS) {
+        const pr = progress[it.id];
+        const st = pr && pr.best != null ? '<span class="rank rank-' + pr.rank + '">' + pr.rank + '</span>' + Math.round(pr.best) + '%' : '<span>—</span>';
+        h += '<button class="lrow" type="button" data-id="' + it.id + '" aria-current="' + (it.id === sel.id) + '">' +
+          '<span class="lnum song">♪</span>' +
+          '<span class="lmain"><span class="lname">' + it.name + (EDIT[it.chart] ? ' <span class="done">編集版</span>' : '') + '</span><span class="lmeta">' + it.lanes.map(k => LANE[k].short).join(' ') + ' · ' + SONG.bpm + ' BPM · ' + it.count + ' ノーツ</span></span>' +
+          '<span class="lstat">' + st + '</span></button>';
+      }
+      h += '</div>';
+    }
     listEl.innerHTML = h;
   }
   listEl.addEventListener('click', e => {
@@ -1572,7 +1700,8 @@ const LESSONS = [
       c.fillText(LANE[r.lane].short, g.labelW / 2, r.cy - (showKeys && r.h > 34 ? 7 : 0));
       if (showKeys && r.h > 34) {
         c.fillStyle = COL.text; c.font = '500 10px ' + FONT_M;
-        c.fillText(LANE[r.lane].cap.replace(' / ', '/'), g.labelW / 2, r.cy + 10);
+        const capTxt = LANE[r.lane].cap.split(' / ').slice(0, 2).join('/');
+        c.fillText(capTxt, g.labelW / 2, r.cy + 10);
       }
     });
 
@@ -1810,8 +1939,51 @@ const LESSONS = [
     latEl.innerHTML = '遅延 <b>' + Math.round(base + out) + ' ms</b>（処理 ' + Math.round(base) + ' / 出力 ' +
       (ctx.outputLatency === undefined ? '不明' : Math.round(out)) + '）· ' + ctx.sampleRate + ' Hz';
   }
-  function openSettings() { settingsDlg.hidden = false; showLatency(); latTimer = setInterval(showLatency, 1000); $('closeSettings').focus(); }
-  function closeSettings() { settingsDlg.hidden = true; clearInterval(latTimer); }
+  let capturing = null;
+  const keymapEl = $('keymap'), keyNote = $('keyNote');
+  const KEY_HELP = keyNote.textContent;
+  function renderKeymap() {
+    keymapEl.innerHTML = SOUNDS.map(s =>
+      '<div class="krow"><span>' + s.jp + '</span><div class="kchips">' +
+      (KEYS[s.id] || []).map(c => '<button class="kchip" type="button" data-id="' + s.id + '" data-code="' + c + '" aria-label="' + keyLabel(c) + ' を外す">' + keyLabel(c) + '<span aria-hidden="true">×</span></button>').join('') +
+      '<button class="kadd" type="button" data-id="' + s.id + '" aria-pressed="' + (capturing === s.id) + '">' + (capturing === s.id ? 'キーを押してください' : '＋ 追加') + '</button>' +
+      '</div></div>').join('');
+  }
+  function saveKeys(msg) {
+    prefs.keys = KEYS; savePrefs();
+    applyKeys(); refreshFreeKeys();
+    renderKeymap();
+    if (view === 'lessons') renderDetail();
+    keyNote.textContent = msg || KEY_HELP;
+  }
+  keymapEl.addEventListener('click', e => {
+    const chip = e.target.closest('.kchip');
+    if (chip) { KEYS[chip.dataset.id] = KEYS[chip.dataset.id].filter(c => c !== chip.dataset.code); capturing = null; saveKeys(keyLabel(chip.dataset.code) + ' を外しました。'); return; }
+    const add = e.target.closest('.kadd');
+    if (add) { capturing = capturing === add.dataset.id ? null : add.dataset.id; renderKeymap(); keyNote.textContent = capturing ? '割り当てたいキーを押してください（Esc で取り消し）。' : KEY_HELP; }
+  });
+  function captureKey(e) {
+    e.preventDefault();
+    const id = capturing;
+    if (e.code === 'Escape') { capturing = null; renderKeymap(); keyNote.textContent = KEY_HELP; return; }
+    if (!e.code || /^(Shift|Control|Alt|Meta|OS|Tab|CapsLock|Fn)/.test(e.code)) { keyNote.textContent = 'このキーは割り当てられません。別のキーを押してください。'; return; }
+    let moved = '';
+    SOUNDS.forEach(s => {
+      if (s.id !== id && KEYS[s.id].includes(e.code)) { KEYS[s.id] = KEYS[s.id].filter(c => c !== e.code); moved = s.jp; }
+    });
+    if (!KEYS[id].includes(e.code)) KEYS[id].push(e.code);
+    capturing = null;
+    const name = SOUNDS.find(s => s.id === id).jp;
+    saveKeys(keyLabel(e.code) + ' を' + name + 'に割り当てました' + (moved ? '（' + moved + 'から移動）' : '') + '。');
+  }
+  $('keysReset').addEventListener('click', () => {
+    KEYS = {};
+    SOUNDS.forEach(s => (KEYS[s.id] = DEFAULT_KEYS[s.id].slice()));
+    capturing = null;
+    saveKeys('キーを初期設定に戻しました。');
+  });
+  function openSettings() { capturing = null; renderKeymap(); keyNote.textContent = KEY_HELP; settingsDlg.hidden = false; showLatency(); latTimer = setInterval(showLatency, 1000); $('closeSettings').focus(); }
+  function closeSettings() { settingsDlg.hidden = true; clearInterval(latTimer); capturing = null; }
   $('openSettings').addEventListener('click', openSettings);
   $('closeSettings').addEventListener('click', closeSettings);
   settingsDlg.addEventListener('click', e => { if (e.target === settingsDlg) closeSettings(); });
@@ -2208,9 +2380,364 @@ const LESSONS = [
     if (view === 'lessons') { renderList(); renderDetail(); }
   });
 
+  /* ================= online ================= */
+  const PEERJS_URL = 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
+  const PEER_PREFIX = 'browser-drum-room-';
+  const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const MAX_PLAYERS = 4;
+  const SLOT_PAN = [-0.4, 0.4, -0.15, 0.15];
+  const LIGHT_ORDER = ['crash', 'open', 'closed', 'pedal', 'snare', 'sticks', 'kick'];
+  const LIGHT_SHORT = { crash: 'CR', open: 'OH', closed: 'HH', pedal: 'PH', snare: 'SN', sticks: 'ST', kick: 'BD' };
+  const SOUND_IDS = new Set(SOUNDS.map(x => x.id));
+  const viaRoom = !!(window.claude && typeof window.claude.use === 'function');
+  const ON = { mode: null, code: '', myId: '', hostId: '', isHost: false, inRoom: false, busy: false,
+    players: new Map(), conns: new Map(), peer: null, nr: null, unsubs: [], pingTimer: 0, rosterTimer: 0 };
+  const genCode = () => Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
+  const normCode = v => (v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+  const escH = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const cleanName = v => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 12) : '') || 'プレイヤー';
+  const myLat = () => (ctx && ctx.state === 'running' ? Math.round(((ctx.baseLatency || 0) + (ctx.outputLatency || 0)) * 1000) : null);
+  const onNameEl = $('onName'), onMsgEl = $('onMsg');
+  onNameEl.value = prefs.onName || 'プレイヤー' + (1 + Math.floor(Math.random() * 99));
+  const myName = () => cleanName(onNameEl.value);
+  $('onVia').textContent = viaRoom
+    ? 'このページでは claude.ai の中継サーバーを通して通信します。参加する人も、このページを開ける（共有されている）必要があります。P2P 通信は、自分のサーバーに置いた drum.html で使えます。'
+    : '通信は P2P（WebRTC）です。最初の接続だけ PeerJS の公開サーバーを使い、その後は端末どうしが直接つながります（つながらないネットワークでは中継サーバー経由になります）。';
+  function onMsg(t, kind) { onMsgEl.textContent = t || ''; onMsgEl.className = 'on-msg' + (kind ? ' ' + kind : ''); }
+  onNameEl.addEventListener('change', () => {
+    prefs.onName = myName(); savePrefs();
+    if (!ON.inRoom) return;
+    const me = ON.players.get(ON.myId);
+    if (me) me.name = myName();
+    if (ON.mode === 'p2p') { sendAll({ t: 'hello', name: myName(), lat: myLat() }); if (ON.isHost) broadcastRoster(); }
+    if (ON.mode === 'room' && ON.nr) ON.nr.presence({ name: myName() }).catch(() => {});
+    renderPlayers();
+  });
+  $('onCode').addEventListener('input', e => { const v = normCode(e.target.value); if (v !== e.target.value) e.target.value = v; });
+  $('onCode').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); onJoinClick(); } });
+
+  // ---- my drum in the room ----
+  const onKitApi = makeKit($('onKit'), id => onlineHit(id));
+  function onlineHit(id) {
+    hitNow(id);
+    onKitApi.flash(id);
+    if (!ON.inRoom) return;
+    flashLight(ON.myId, id);
+    if (ON.mode === 'p2p') sendAll({ t: 'hit', s: id });
+    else if (ON.nr) ON.nr.emit('hit', { s: id }).catch(() => {});
+  }
+  function playRemote(pid, s) {
+    if (!SOUND_IDS.has(s)) return;
+    const pl = ON.players.get(pid);
+    if (!pl) return;
+    flashLight(pid, s);
+    if (pl.mute) return;
+    ensureCtx();
+    if (!pl.out || pl.outCtx !== ctx) {
+      pl.outCtx = ctx;
+      if (ctx.createStereoPanner) { pl.out = ctx.createStereoPanner(); pl.out.pan.value = SLOT_PAN[pl.slot] || 0; pl.out.connect(master); }
+      else pl.out = master;
+    }
+    trigger(s, 0, 0.9, pl.out, 'p:' + pid);
+  }
+
+  // ---- room screen ----
+  function enterRoom() {
+    ON.inRoom = true;
+    $('onLobby').hidden = true;
+    $('onRoom').hidden = false;
+    $('onCodeShow').textContent = ON.code;
+    onMsg('');
+    clearInterval(ON.pingTimer);
+    ON.pingTimer = setInterval(sendPing, 1500);
+    sendPing();
+    renderPlayers();
+  }
+  function leaveRoom(reason, kind) {
+    clearInterval(ON.pingTimer);
+    clearTimeout(ON.rosterTimer);
+    if (ON.mode === 'p2p') {
+      sendAll({ t: 'bye' });
+      ON.conns.forEach(c => { try { c.close(); } catch (e) {} });
+      const pr = ON.peer;
+      setTimeout(() => { try { pr && pr.destroy(); } catch (e) {} }, 200);
+    }
+    if (ON.mode === 'room') {
+      ON.unsubs.forEach(u => { try { u(); } catch (e) {} });
+      if (ON.nr) ON.nr.leave().catch(() => {});
+    }
+    Object.assign(ON, { mode: null, code: '', myId: '', hostId: '', isHost: false, inRoom: false, peer: null, nr: null, unsubs: [] });
+    ON.players.clear(); ON.conns.clear();
+    $('onRoom').hidden = true;
+    $('onLobby').hidden = false;
+    onMsg(reason || '', kind);
+  }
+  $('onLeave').addEventListener('click', () => leaveRoom('退室しました。'));
+  $('onCopy').addEventListener('click', () => {
+    const t = ON.code, btn = $('onCopy');
+    const done = () => { btn.textContent = 'コピーしました'; setTimeout(() => (btn.textContent = 'コードをコピー'), 1500); };
+    try { navigator.clipboard.writeText(t).then(done, () => {}); } catch (e) {}
+  });
+  window.addEventListener('pagehide', () => { if (ON.inRoom) leaveRoom(); });
+
+  function renderPlayers() {
+    if (!ON.inRoom) return;
+    const bySlot = [];
+    ON.players.forEach(p => { if (p.slot >= 0 && p.slot < MAX_PLAYERS) bySlot[p.slot] = p; });
+    let h = '';
+    for (let i = 0; i < MAX_PLAYERS; i++) {
+      const p = bySlot[i];
+      if (!p) { h += '<div class="pl empty">空き</div>'; continue; }
+      const me = p.id === ON.myId, host = p.id === ON.hostId || p.host;
+      const oneWay = p.rtt != null ? Math.round(p.rtt / 2) : null;
+      const lat = me ? myLat() : p.lat;
+      h += '<div class="pl" data-id="' + escH(p.id) + '" style="--pc:var(--p' + (i + 1) + ')">' +
+        '<div class="pl-top"><span class="pl-name">' + escH(p.name || 'プレイヤー') + '</span>' +
+        (me ? '<span class="pl-tag">あなた</span>' : '') + (host ? '<span class="pl-tag">ホスト</span>' : '') +
+        (me ? '' : '<button class="pl-mute" type="button" data-mute="' + escH(p.id) + '" aria-pressed="' + !!p.mute + '">' + (p.mute ? 'ミュート中' : '音あり') + '</button>') + '</div>' +
+        '<div class="pl-lat">' + (me ? '' : '通信 <b' + (oneWay != null && oneWay > 60 ? ' class="warn"' : '') + '>' + (oneWay != null ? oneWay + ' ms' : '測定中') + '</b>（片道）<br>') +
+        '端末の音 <b>' + (lat != null ? lat + ' ms' : '—') + '</b></div>' +
+        '<div class="pl-lights">' + LIGHT_ORDER.map(k => '<span data-s="' + k + '"><i></i>' + LIGHT_SHORT[k] + '</span>').join('') + '</div></div>';
+    }
+    $('onPlayers').innerHTML = h;
+    const n = ON.players.size;
+    $('onState').textContent = (ON.mode === 'p2p' ? 'P2P 接続' : 'claude.ai 経由') + ' · ' + n + ' / ' + MAX_PLAYERS + ' 人' +
+      (n < 2 ? ' · コードを伝えて、ほかの人の入室を待っています' : '');
+  }
+  $('onPlayers').addEventListener('click', e => {
+    const b = e.target.closest('[data-mute]');
+    if (!b) return;
+    const p = ON.players.get(b.dataset.mute);
+    if (p) { p.mute = !p.mute; renderPlayers(); }
+  });
+  function flashLight(pid, s) {
+    const card = $('onPlayers').querySelector('.pl[data-id="' + (window.CSS && CSS.escape ? CSS.escape(pid) : pid) + '"]');
+    const i = card && card.querySelector('[data-s="' + s + '"] i');
+    if (i && i.animate) i.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-out' });
+  }
+  function setRtt(pid, rtt) {
+    const p = ON.players.get(pid);
+    if (!p || !(rtt >= 0) || rtt > 10000) return;
+    p.rtt = p.rtt == null ? rtt : p.rtt * 0.6 + rtt * 0.4;
+  }
+  function sendPing() {
+    if (!ON.inRoom) return;
+    const ts = performance.now(), lat = myLat();
+    if (ON.mode === 'p2p') sendAll({ t: 'ping', ts, lat });
+    else if (ON.nr) {
+      ON.nr.emit('ping', { ts }).catch(() => {});
+      if (lat !== ON.lastLat) { ON.lastLat = lat; ON.nr.presence({ lat }).catch(() => {}); }
+    }
+    renderPlayers();
+  }
+
+  // ---- P2P (PeerJS / WebRTC) ----
+  function loadPeerJS() {
+    if (window.Peer) return Promise.resolve(true);
+    return new Promise(res => {
+      const sc = document.createElement('script');
+      sc.src = PEERJS_URL; sc.async = true;
+      sc.onload = () => res(!!window.Peer);
+      sc.onerror = () => res(false);
+      document.head.appendChild(sc);
+    });
+  }
+  function peerErrText(err) {
+    const t = err && err.type;
+    if (t === 'peer-unavailable') return 'その部屋は見つかりませんでした。コードを確かめてください。';
+    if (t === 'network' || t === 'server-error' || t === 'socket-error' || t === 'socket-closed') return '通信サーバーにつながりませんでした。インターネット接続を確かめて、もう一度試してください。';
+    if (t === 'browser-incompatible') return 'このブラウザは P2P 通信に対応していません。';
+    return 'つながりませんでした（' + (t || 'エラー') + '）。もう一度試してください。';
+  }
+  function sendAll(msg) { ON.conns.forEach(c => { if (c.open) { try { c.send(msg); } catch (e) {} } }); }
+  function freeSlot() { const used = new Set([...ON.players.values()].map(p => p.slot)); for (let i = 0; i < MAX_PLAYERS; i++) if (!used.has(i)) return i; return -1; }
+  function broadcastRoster() {
+    if (!ON.isHost) return;
+    sendAll({ t: 'roster', host: ON.myId, players: [...ON.players.values()].map(p => ({ id: p.id, name: p.name, slot: p.slot, lat: p.id === ON.myId ? myLat() : p.lat })) });
+  }
+  // listen as soon as a connection exists, so nothing sent right after it opens is missed
+  function wire(conn) {
+    conn.on('data', d => onPeerData(conn.peer, d));
+    conn.on('close', () => onConnGone(conn.peer, conn));
+    conn.on('error', () => onConnGone(conn.peer, conn));
+  }
+  function setupConn(conn) { ON.conns.set(conn.peer, conn); }
+  function onConnGone(id, conn) {
+    if (ON.conns.get(id) !== conn) return;
+    ON.conns.delete(id);
+    if (!ON.inRoom) return;
+    if (ON.isHost) { ON.players.delete(id); broadcastRoster(); renderPlayers(); }
+    else if (id === ON.hostId) leaveRoom('ホストが退室したため、部屋が閉じました。');
+    else { const p = ON.players.get(id); if (p) p.rtt = null; renderPlayers(); }
+  }
+  function onPeerData(from, d) {
+    if (!d || typeof d !== 'object' || typeof d.t !== 'string') return;
+    const p = ON.players.get(from);
+    switch (d.t) {
+      case 'hit': if (typeof d.s === 'string') playRemote(from, d.s); break;
+      case 'ping': { const c = ON.conns.get(from); if (c && c.open) c.send({ t: 'pong', ts: d.ts, lat: myLat() }); if (p && typeof d.lat === 'number') p.lat = d.lat; break; }
+      case 'pong': if (typeof d.ts === 'number') setRtt(from, performance.now() - d.ts); if (p && typeof d.lat === 'number') p.lat = d.lat; break;
+      case 'hello':
+        if (p) { p.name = cleanName(d.name); if (typeof d.lat === 'number') p.lat = d.lat; }
+        if (ON.isHost) { clearTimeout(ON.rosterTimer); ON.rosterTimer = setTimeout(broadcastRoster, 150); }
+        renderPlayers(); break;
+      case 'roster': if (from === ON.hostId && !ON.isHost) applyRoster(d); break;
+      case 'full': if (!ON.inRoom) { leaveRoom('部屋が満員でした（最大 ' + MAX_PLAYERS + ' 人）。', 'err'); } break;
+      case 'bye': { const c = ON.conns.get(from); if (c) onConnGone(from, c); break; }
+    }
+  }
+  function applyRoster(d) {
+    if (!Array.isArray(d.players)) return;
+    const old = ON.players, next = new Map();
+    d.players.slice(0, MAX_PLAYERS).forEach(x => {
+      if (!x || typeof x.id !== 'string') return;
+      const prev = old.get(x.id) || {};
+      next.set(x.id, Object.assign(prev, { id: x.id, name: cleanName(x.name), slot: x.slot | 0, lat: typeof x.lat === 'number' ? x.lat : prev.lat, host: x.id === d.host }));
+    });
+    if (!next.has(ON.myId)) return;
+    ON.players = next;
+    if (!ON.inRoom) enterRoom();
+    // full mesh: of each pair of guests, the one with the larger id dials
+    next.forEach(x => {
+      if (x.id === ON.myId || x.id === ON.hostId || ON.conns.has(x.id) || !(ON.myId > x.id)) return;
+      const c = ON.peer.connect(x.id, { reliable: true, serialization: 'json', metadata: { name: myName() } });
+      wire(c);
+      c.on('open', () => { setupConn(c); c.send({ t: 'hello', name: myName(), lat: myLat() }); });
+    });
+    ON.conns.forEach((c, id) => { if (id !== ON.hostId && !next.has(id)) { try { c.close(); } catch (e) {} ON.conns.delete(id); } });
+    renderPlayers();
+  }
+  function onIncoming(conn) {
+    wire(conn);
+    conn.on('open', () => {
+      if (ON.isHost) {
+        const slot = freeSlot();
+        if (slot < 0) { try { conn.send({ t: 'full' }); } catch (e) {} setTimeout(() => { try { conn.close(); } catch (e) {} }, 600); return; }
+        ON.players.set(conn.peer, { id: conn.peer, name: cleanName(conn.metadata && conn.metadata.name), slot, lat: null, rtt: null });
+        setupConn(conn);
+        broadcastRoster();
+        renderPlayers();
+      } else {
+        setupConn(conn);
+        conn.send({ t: 'hello', name: myName(), lat: myLat() });
+      }
+    });
+  }
+  async function p2pCreate(tries) {
+    if (!await loadPeerJS()) { onMsg('通信の準備に失敗しました。インターネット接続を確かめてください。', 'err'); return; }
+    const code = genCode();
+    const peer = new window.Peer(PEER_PREFIX + code, { debug: 0 });
+    await new Promise(resolve => {
+      let opened = false;
+      peer.on('open', id => {
+        opened = true;
+        Object.assign(ON, { mode: 'p2p', peer, code, myId: id, hostId: id, isHost: true });
+        ON.players.clear(); ON.conns.clear();
+        ON.players.set(id, { id, name: myName(), slot: 0, lat: myLat(), rtt: null, host: true });
+        enterRoom();
+        resolve();
+      });
+      peer.on('connection', onIncoming);
+      peer.on('disconnected', () => { if (ON.peer === peer && !peer.destroyed) { try { peer.reconnect(); } catch (e) {} } });
+      peer.on('error', err => {
+        if (opened) return;
+        try { peer.destroy(); } catch (e) {}
+        if (err && err.type === 'unavailable-id' && (tries || 0) < 3) p2pCreate((tries || 0) + 1).then(resolve);
+        else { onMsg(peerErrText(err), 'err'); resolve(); }
+      });
+    });
+  }
+  async function p2pJoin(code) {
+    if (!await loadPeerJS()) { onMsg('通信の準備に失敗しました。インターネット接続を確かめてください。', 'err'); return; }
+    const peer = new window.Peer({ debug: 0 });
+    await new Promise(resolve => {
+      let done = false;
+      const finish = (msg) => { if (done) return; done = true; if (msg) { onMsg(msg, 'err'); try { peer.destroy(); } catch (e) {} } resolve(); };
+      const timer = setTimeout(() => { if (!ON.inRoom) { if (ON.peer === peer) leaveRoom(); finish('部屋につながりませんでした。コードとネットワークを確かめてください。'); } }, 15000);
+      peer.on('open', id => {
+        Object.assign(ON, { mode: 'p2p', peer, code, myId: id, hostId: PEER_PREFIX + code, isHost: false });
+        ON.players.clear(); ON.conns.clear();
+        const conn = peer.connect(ON.hostId, { reliable: true, serialization: 'json', metadata: { name: myName() } });
+        wire(conn);
+        conn.on('open', () => { setupConn(conn); conn.send({ t: 'hello', name: myName(), lat: myLat() }); });
+        const wait = setInterval(() => { if (ON.inRoom || ON.peer !== peer) { clearInterval(wait); clearTimeout(timer); finish(); } }, 100);
+      });
+      peer.on('connection', onIncoming);
+      peer.on('disconnected', () => { if (ON.peer === peer && !peer.destroyed) { try { peer.reconnect(); } catch (e) {} } });
+      peer.on('error', err => {
+        if (ON.inRoom) return;   // a failed guest-to-guest link must not end the room
+        clearTimeout(timer);
+        if (ON.peer === peer) Object.assign(ON, { mode: null, peer: null });
+        finish(peerErrText(err));
+      });
+    });
+  }
+
+  // ---- claude.ai room (relay) ----
+  async function roomStart(code, creating) {
+    const room = await claudeUse('room');
+    if (!room) { onMsg('このページではオンライン機能を使えません。自分のサーバーに置いた drum.html を使ってください。', 'err'); return; }
+    let nr;
+    try { nr = await room.join('bdrum-' + code.toLowerCase()); }
+    catch (e) { onMsg(e && e.code === 'not_permitted' ? 'この部屋に参加する権限がありません。' : '部屋に入れませんでした。少し待ってからもう一度試してください。', 'err'); return; }
+    const joinedAt = Date.now();
+    Object.assign(ON, { mode: 'room', nr, code, isHost: creating, unsubs: [] });
+    ON.players.clear();
+    await nr.presence({ name: myName(), lat: myLat(), joinedAt, host: creating }).catch(() => {});
+    const sync = peers => {
+      const meP = peers.find(x => x.sameTab);
+      if (meP) ON.myId = meP.peer;
+      const list = peers.filter(x => x.kind === 'viewer')
+        .sort((a, b) => ((a.presence && a.presence.joinedAt) || 9e15) - ((b.presence && b.presence.joinedAt) || 9e15));
+      const next = new Map();
+      list.slice(0, MAX_PLAYERS).forEach((x, i) => {
+        const prev = ON.players.get(x.peer) || {};
+        const pr = x.presence || {};
+        next.set(x.peer, Object.assign(prev, { id: x.peer, name: cleanName(pr.name), slot: i, lat: typeof pr.lat === 'number' ? pr.lat : null, host: !!pr.host }));
+      });
+      ON.players = next;
+      ON.hostId = (list.find(x => x.presence && x.presence.host) || {}).peer || '';
+      renderPlayers();
+    };
+    ON.unsubs.push(nr.onPeers(ch => sync(ch.peers), () => { if (ON.nr === nr) leaveRoom('接続が切れました。', 'err'); }));
+    ON.unsubs.push(nr.on('hit', m => { if (!m.sameTab && m.data && typeof m.data.s === 'string') playRemote(m.peer, m.data.s); }));
+    ON.unsubs.push(nr.on('ping', m => { if (!m.sameTab && m.data) nr.emit('pong', { to: m.peer, ts: m.data.ts }).catch(() => {}); }));
+    ON.unsubs.push(nr.on('pong', m => { if (m.data && m.data.to === ON.myId && typeof m.data.ts === 'number') setRtt(m.peer, performance.now() - m.data.ts); }));
+    sync(nr.peers());
+    enterRoom();
+    setTimeout(() => {
+      if (ON.nr !== nr) return;
+      if (!ON.players.has(ON.myId) && nr.peers().filter(x => x.kind === 'viewer').length > MAX_PLAYERS) leaveRoom('部屋が満員でした（最大 ' + MAX_PLAYERS + ' 人）。', 'err');
+    }, 2500);
+  }
+
+  // ---- lobby buttons ----
+  async function withBusy(fn) {
+    if (ON.busy || ON.inRoom) return;
+    ON.busy = true;
+    $('onCreate').disabled = $('onJoin').disabled = true;
+    prefs.onName = myName(); savePrefs();
+    ensureCtx();
+    try { await ctx.resume(); } catch (e) {}
+    try { await fn(); } finally { ON.busy = false; $('onCreate').disabled = $('onJoin').disabled = false; }
+  }
+  $('onCreate').addEventListener('click', () => withBusy(async () => {
+    onMsg('部屋を作っています…');
+    if (viaRoom) await roomStart(genCode(), true); else await p2pCreate(0);
+  }));
+  function onJoinClick() {
+    const code = normCode($('onCode').value);
+    if (code.length !== 6) { onMsg('6文字のコードを入力してください。', 'err'); return; }
+    withBusy(async () => {
+      onMsg('部屋に入っています…');
+      if (viaRoom) await roomStart(code, false); else await p2pJoin(code);
+    });
+  }
+  $('onJoin').addEventListener('click', onJoinClick);
+
   /* ================= input ================= */
   window.addEventListener('keydown', e => {
-    if (!settingsDlg.hidden) { if (e.key === 'Escape') closeSettings(); return; }
+    if (!settingsDlg.hidden) { if (capturing) { captureKey(e); return; } if (e.key === 'Escape') closeSettings(); return; }
     if (!resultDlg.hidden) { if (e.key === 'Escape') { if (view === 'edit') closeResult(); else backToLessons(); } return; }
     if (view === 'play' && e.key === 'Escape') { abortGame(); return; }
     if (view === 'edit') {
@@ -2220,11 +2747,13 @@ const LESSONS = [
       return;
     }
     if (view === 'lessons' || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (view === 'online' && e.target.closest && e.target.closest('input')) return;
     const id = CODE_TO_ID[e.code];
     if (!id) return;
     e.preventDefault();
     if (e.repeat) return;
     if (view === 'free') { hitNow(id); flashFree(id); }
+    else if (view === 'online') onlineHit(id);
     else if (view === 'play') padHit(id, eventPerf(e));
   });
   window.addEventListener('keyup', e => {
@@ -2233,7 +2762,7 @@ const LESSONS = [
   $('stopBtn').addEventListener('click', abortGame);
 
   // no zoom, long-press menu or scrolling on the playing surfaces
-  [stage, HW.el, gpadsEl].forEach(el => {
+  [stage, HW.el, gpadsEl, $('onKit')].forEach(el => {
     el.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
     el.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
     el.addEventListener('touchend', e => e.preventDefault(), { passive: false });
