@@ -59,7 +59,7 @@
 }
 [hidden]{display:none!important}
 *,*::before,*::after{box-sizing:border-box}
-html{height:100%;touch-action:manipulation}
+html{height:100%;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
   height:100%; margin:0; overflow:hidden;
   background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:14px;
@@ -71,7 +71,7 @@ body{
   max-width:1280px; margin:0 auto;
   padding-left:max(16px, env(safe-area-inset-left, 0px));
   padding-right:max(16px, env(safe-area-inset-right, 0px));
-  padding-block:10px 14px;
+  padding-block:10px calc(14px + var(--bar-pad, 0px));
 }
 button{font:inherit; color:inherit}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px}
@@ -289,7 +289,8 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .copybox{width:100%; min-height:180px; font-family:var(--font-mono); font-size:11px; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:8px; -webkit-user-select:text; user-select:text}
 
 /* ---------- online ---------- */
-.online{display:flex; flex-direction:column; gap:10px}
+/* the room scrolls when the screen is short, so the kit never collapses */
+.online{display:flex; flex-direction:column; gap:10px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; touch-action:pan-y}
 .on-lobby{flex:1; min-height:0; overflow-y:auto; touch-action:pan-y; display:flex; flex-direction:column; gap:14px; max-width:760px; padding-bottom:12px}
 .on-lobby h2{margin:0; font-family:var(--font-display); font-weight:800; font-size:24px; letter-spacing:.04em}
 .on-lobby > p{margin:0; font-size:13px; line-height:1.7; color:var(--muted); max-width:62ch}
@@ -302,10 +303,13 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .field.code{font-family:var(--font-mono); letter-spacing:.24em; text-transform:uppercase}
 .on-msg{margin:0; font-size:13px; line-height:1.6; color:var(--muted)}
 .on-msg.err{color:var(--err)} .on-msg.ok{color:var(--ok)}
-.on-room{flex:1; min-height:0; display:flex; flex-direction:column; gap:10px}
-.on-head{display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px}
+.on-room{flex:none; min-height:100%; display:flex; flex-direction:column; gap:10px; min-width:0}
+.on-room > *{min-width:0}
+.on-head{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px}
+.on-head > *{min-width:0}
+.on-head .btn{padding:7px 12px}
 .on-head .eyebrow{margin:0}
-.on-code{font-family:var(--font-mono); font-size:24px; letter-spacing:.2em; line-height:1}
+.on-code{font-family:var(--font-mono); font-size:clamp(18px, 6vw, 24px); letter-spacing:.2em; line-height:1}
 .on-via{font-size:11px; color:var(--muted)}
 .on-head .grow{margin-right:auto}
 .on-players{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px}
@@ -323,19 +327,31 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .pl-lights{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:3px; margin-top:2px}
 .pl-lights span{position:relative; height:16px; border-radius:4px; background:var(--surface-2); font-family:var(--font-mono); font-size:8px; line-height:16px; text-align:center; color:var(--muted); overflow:hidden}
 .pl-lights span i{position:absolute; inset:0; background:var(--pc); opacity:0}
-.on-kit{flex:1; min-height:0}
+.on-kit{flex:1 0 auto; min-height:max(300px, min(58vh, 520px))}
 .metro{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; padding:8px 12px; background:var(--surface); border:1px solid var(--line); border-radius:12px}
 .mt-beats{display:flex; gap:6px}
 .mt-beats i{width:14px; height:14px; border-radius:50%; background:var(--surface-2); border:1px solid var(--line)}
 .mt-beats i.first{width:18px; height:18px}
 .mt-beats i.on{background:var(--accent); border-color:var(--accent)}
-.mt-bpm{display:flex; align-items:center; gap:4px}
+.metro > *{min-width:0}
+.mt-bpm{display:flex; flex-wrap:wrap; align-items:center; gap:4px}
 .mt-bpm b{font-family:var(--font-display); font-weight:800; font-size:26px; min-width:3ch; text-align:center; font-variant-numeric:tabular-nums; line-height:1}
 .mt-bpm span{font-size:11px; color:var(--muted); margin-right:4px}
 .mt-bpm .mini{min-width:34px; padding:5px 6px}
 .metro select{font:inherit; font-size:13px; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:5px 8px}
 .mt-note{font-size:11px; color:var(--muted); line-height:1.5; flex-basis:100%}
 .metro .mini:disabled,.metro select:disabled{opacity:.45}
+
+@media (max-width:520px){
+  .pl{padding:6px 8px 7px}
+  .pl-lat{font-size:10px}
+  .pl-lights span{height:12px; line-height:12px; font-size:7px}
+  .metro{padding:8px 10px; gap:6px 10px}
+  .mt-bpm b{font-size:22px}
+  [data-view="online"] .rec, [data-view="free"] .rec{display:none}
+}
+/* pads squeezed very flat: show the label only */
+@container (max-height: 34px){ .pad .shape{display:none} }
 
 /* ---------- dialogs ---------- */
 .backdrop{
@@ -552,6 +568,10 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
       </select><span></span>
     </label>
     <p class="lat" id="lat">遅延：音を一度鳴らすと表示されます</p>
+    <label class="srow" for="barPad"><span>画面下の余白</span>
+      <select id="barPad"><option value="auto">自動</option><option value="0">なし</option><option value="40">小</option><option value="72">中</option><option value="110">大</option></select><span></span>
+    </label>
+    <p class="note">ブラウザ下部のバーに、ドラムのボタンが隠れるときに広げます。「自動」は iPhone・iPad の Safari だけ「中」になります。</p>
     <label class="srow" for="calib"><span>判定タイミング補正</span><input id="calib" type="range" min="-150" max="150" step="5" value="0"><output id="calibOut">0 ms</output></label>
     <p class="note">叩くたびに「おそい」と判定されるならプラス、「はやい」ならマイナスへ動かします。リザルト画面のボタンから自動で合わせることもできます。</p>
     <h3>キー割り当て</h3>
@@ -926,6 +946,7 @@ const LESSONS = [
   const views = { lessons: $('viewLessons'), free: $('viewFree'), play: $('viewPlay'), edit: $('viewEdit'), online: $('viewOnline') };
   function setView(v) {
     view = v;
+    app.dataset.view = v;
     Object.keys(views).forEach(k => (views[k].hidden = k !== v));
     $('topbar').hidden = v === 'play' || v === 'edit';
     document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === v)));
@@ -2011,6 +2032,16 @@ const LESSONS = [
     capturing = null;
     saveKeys('キーを初期設定に戻しました。');
   });
+  const UA = navigator.userAgent || '';
+  const isIOS = /iP(hone|ad|od)/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const iosSafari = isIOS && /Safari\//.test(UA) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA\/|Line\//.test(UA);
+  function applyBarPad() {
+    const v = prefs.barPad == null || prefs.barPad === 'auto' ? (iosSafari ? 72 : 0) : Number(prefs.barPad) || 0;
+    document.documentElement.style.setProperty('--bar-pad', v + 'px');
+    $('barPad').value = prefs.barPad == null ? 'auto' : String(prefs.barPad);
+  }
+  applyBarPad();
+  $('barPad').addEventListener('change', e => { prefs.barPad = e.target.value === 'auto' ? null : Number(e.target.value); savePrefs(); applyBarPad(); });
   function openSettings() { capturing = null; renderKeymap(); keyNote.textContent = KEY_HELP; settingsDlg.hidden = false; showLatency(); latTimer = setInterval(showLatency, 1000); $('closeSettings').focus(); }
   function closeSettings() { settingsDlg.hidden = true; clearInterval(latTimer); capturing = null; }
   $('openSettings').addEventListener('click', openSettings);
