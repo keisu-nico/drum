@@ -324,6 +324,18 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .pl-lights span{position:relative; height:16px; border-radius:4px; background:var(--surface-2); font-family:var(--font-mono); font-size:8px; line-height:16px; text-align:center; color:var(--muted); overflow:hidden}
 .pl-lights span i{position:absolute; inset:0; background:var(--pc); opacity:0}
 .on-kit{flex:1; min-height:0}
+.metro{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; padding:8px 12px; background:var(--surface); border:1px solid var(--line); border-radius:12px}
+.mt-beats{display:flex; gap:6px}
+.mt-beats i{width:14px; height:14px; border-radius:50%; background:var(--surface-2); border:1px solid var(--line)}
+.mt-beats i.first{width:18px; height:18px}
+.mt-beats i.on{background:var(--accent); border-color:var(--accent)}
+.mt-bpm{display:flex; align-items:center; gap:4px}
+.mt-bpm b{font-family:var(--font-display); font-weight:800; font-size:26px; min-width:3ch; text-align:center; font-variant-numeric:tabular-nums; line-height:1}
+.mt-bpm span{font-size:11px; color:var(--muted); margin-right:4px}
+.mt-bpm .mini{min-width:34px; padding:5px 6px}
+.metro select{font:inherit; font-size:13px; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:5px 8px}
+.mt-note{font-size:11px; color:var(--muted); line-height:1.5; flex-basis:100%}
+.metro .mini:disabled,.metro select:disabled{opacity:.45}
 
 /* ---------- dialogs ---------- */
 .backdrop{
@@ -441,6 +453,23 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
         <span class="on-via" id="onState" style="flex-basis:100%"></span>
       </div>
       <div class="on-players" id="onPlayers"></div>
+      <div class="metro" id="onMetro">
+        <div class="mt-beats" id="mtBeats" aria-hidden="true"></div>
+        <div class="mt-bpm">
+          <button class="mini" type="button" data-mt="bpm" data-d="-5" aria-label="BPMを5下げる">−5</button>
+          <button class="mini" type="button" data-mt="bpm" data-d="-1" aria-label="BPMを1下げる">−1</button>
+          <b id="mtBpm">120</b><span>BPM</span>
+          <button class="mini" type="button" data-mt="bpm" data-d="1" aria-label="BPMを1上げる">+1</button>
+          <button class="mini" type="button" data-mt="bpm" data-d="5" aria-label="BPMを5上げる">+5</button>
+        </div>
+        <select id="mtMeter" aria-label="拍子">
+          <option value="2">2拍子</option><option value="3">3拍子</option><option value="4" selected>4拍子</option>
+          <option value="5">5拍子</option><option value="6">6拍子</option><option value="7">7拍子</option>
+        </select>
+        <button class="btn primary" type="button" data-mt="toggle" id="mtToggle">スタート</button>
+        <button class="mini" type="button" data-mt="mute" id="mtMute" aria-pressed="false">クリック音を消す</button>
+        <span class="mt-note" id="mtNote"></span>
+      </div>
       <div class="stage on-kit" id="onKit" aria-label="あなたのドラム"></div>
     </div>
   </section>
@@ -2451,9 +2480,14 @@ const LESSONS = [
     clearInterval(ON.pingTimer);
     ON.pingTimer = setInterval(sendPing, 1500);
     sendPing();
+    metroReset();
+    if (ON.isHost) { MET.synced = true; MET.resend = setInterval(metroBroadcast, 4000); }
+    else [200, 450, 700, 1000].forEach(ms => setTimeout(sendPing, ms));   // quick clock sync on arrival
+    renderMetro();
     renderPlayers();
   }
   function leaveRoom(reason, kind) {
+    metroReset();
     clearInterval(ON.pingTimer);
     clearTimeout(ON.rosterTimer);
     if (ON.mode === 'p2p') {
@@ -2575,8 +2609,11 @@ const LESSONS = [
     const p = ON.players.get(from);
     switch (d.t) {
       case 'hit': if (typeof d.s === 'string') playRemote(from, d.s); break;
-      case 'ping': { const c = ON.conns.get(from); if (c && c.open) c.send({ t: 'pong', ts: d.ts, lat: myLat() }); if (p && typeof d.lat === 'number') p.lat = d.lat; break; }
-      case 'pong': if (typeof d.ts === 'number') setRtt(from, performance.now() - d.ts); if (p && typeof d.lat === 'number') p.lat = d.lat; break;
+      case 'ping': { const c = ON.conns.get(from); if (c && c.open) c.send({ t: 'pong', ts: d.ts, ht: performance.now(), lat: myLat() }); if (p && typeof d.lat === 'number') p.lat = d.lat; break; }
+      case 'pong':
+        if (typeof d.ts === 'number') { setRtt(from, performance.now() - d.ts); if (from === ON.hostId && !ON.isHost) clockSample(d.ts, d.ht); }
+        if (p && typeof d.lat === 'number') p.lat = d.lat; break;
+      case 'metro': if (from === ON.hostId && !ON.isHost) metroApply(d); break;
       case 'hello':
         if (p) { p.name = cleanName(d.name); if (typeof d.lat === 'number') p.lat = d.lat; }
         if (ON.isHost) { clearTimeout(ON.rosterTimer); ON.rosterTimer = setTimeout(broadcastRoster, 150); }
@@ -2616,6 +2653,7 @@ const LESSONS = [
         ON.players.set(conn.peer, { id: conn.peer, name: cleanName(conn.metadata && conn.metadata.name), slot, lat: null, rtt: null });
         setupConn(conn);
         broadcastRoster();
+        try { conn.send(metroState()); } catch (e) {}
         renderPlayers();
       } else {
         setupConn(conn);
@@ -2699,16 +2737,143 @@ const LESSONS = [
       ON.hostId = (list.find(x => x.presence && x.presence.host) || {}).peer || '';
       renderPlayers();
     };
-    ON.unsubs.push(nr.onPeers(ch => sync(ch.peers), () => { if (ON.nr === nr) leaveRoom('接続が切れました。', 'err'); }));
+    ON.unsubs.push(nr.onPeers(ch => { sync(ch.peers); if (ON.isHost && ch.joined.length) metroBroadcast(); }, () => { if (ON.nr === nr) leaveRoom('接続が切れました。', 'err'); }));
     ON.unsubs.push(nr.on('hit', m => { if (!m.sameTab && m.data && typeof m.data.s === 'string') playRemote(m.peer, m.data.s); }));
-    ON.unsubs.push(nr.on('ping', m => { if (!m.sameTab && m.data) nr.emit('pong', { to: m.peer, ts: m.data.ts }).catch(() => {}); }));
-    ON.unsubs.push(nr.on('pong', m => { if (m.data && m.data.to === ON.myId && typeof m.data.ts === 'number') setRtt(m.peer, performance.now() - m.data.ts); }));
+    ON.unsubs.push(nr.on('ping', m => { if (!m.sameTab && m.data) nr.emit('pong', { to: m.peer, ts: m.data.ts, ht: performance.now() }).catch(() => {}); }));
+    ON.unsubs.push(nr.on('pong', m => {
+      if (!m.data || m.data.to !== ON.myId || typeof m.data.ts !== 'number') return;
+      setRtt(m.peer, performance.now() - m.data.ts);
+      if (m.peer === ON.hostId && !ON.isHost) clockSample(m.data.ts, m.data.ht);
+    }));
+    ON.unsubs.push(nr.on('metro', m => { if (!m.sameTab && m.peer === ON.hostId && !ON.isHost) metroApply(m.data); }));
     sync(nr.peers());
     enterRoom();
     setTimeout(() => {
       if (ON.nr !== nr) return;
       if (!ON.players.has(ON.myId) && nr.peers().filter(x => x.kind === 'viewer').length > MAX_PLAYERS) leaveRoom('部屋が満員でした（最大 ' + MAX_PLAYERS + ' 人）。', 'err');
     }, 2500);
+  }
+
+  // ---- shared metronome: the host owns tempo; everyone keeps time on the host's clock ----
+  const MET = { on: false, bpm: 120, beats: 4, start: 0, v: 0, mute: false, nextIdx: null, timer: 0, raf: 0, lastBeat: null,
+    offset: 0, samples: [], synced: false, resend: 0 };
+  const isHostClock = () => ON.isHost;
+  const hostNow = () => performance.now() + (isHostClock() ? 0 : MET.offset);
+  function clockSample(sendTs, hostTs) {
+    const now = performance.now(), rtt = now - sendTs;
+    if (!(rtt >= 0) || rtt > 5000 || typeof hostTs !== 'number') return;
+    MET.samples.push({ rtt, off: hostTs - (sendTs + now) / 2 });
+    if (MET.samples.length > 10) MET.samples.shift();
+    const best = MET.samples.reduce((a, b) => (b.rtt < a.rtt ? b : a));
+    MET.offset = best.off;
+    MET.err = best.rtt / 2;
+    const was = MET.synced;
+    MET.synced = true;
+    if (!was) { MET.nextIdx = null; metroRun(); }
+    renderMetro();
+  }
+  function metroState() { return { t: 'metro', on: MET.on, bpm: MET.bpm, beats: MET.beats, start: MET.start, v: MET.v }; }
+  function metroBroadcast() {
+    if (!ON.isHost || !ON.inRoom) return;
+    if (ON.mode === 'p2p') sendAll(metroState());
+    else if (ON.nr) ON.nr.emit('metro', metroState()).catch(() => {});
+  }
+  function metroApply(d) {
+    if (!d || typeof d.bpm !== 'number' || typeof d.start !== 'number') return;
+    if (d.v === MET.v && d.on === MET.on && d.start === MET.start) return;
+    MET.on = !!d.on;
+    MET.bpm = Math.max(30, Math.min(300, d.bpm | 0));
+    MET.beats = Math.max(1, Math.min(12, d.beats | 0 || 4));
+    MET.start = d.start; MET.v = d.v | 0;
+    MET.nextIdx = null;
+    metroRun();
+    renderMetro();
+  }
+  // host action: change tempo or metre without breaking the pulse (new bar starts on the next beat)
+  function metroChange(patch) {
+    if (!ON.isHost) return;
+    const now = hostNow(), oldBeat = 60000 / MET.bpm;
+    if (MET.on) {
+      const k = Math.floor((now - MET.start) / oldBeat);
+      MET.start = Math.max(now + 250, MET.start + (k + 1) * oldBeat);
+    }
+    Object.assign(MET, patch);
+    if (patch.on === true) MET.start = now + 900;
+    MET.v++;
+    MET.nextIdx = null;
+    metroRun();
+    renderMetro();
+    metroBroadcast();
+  }
+  function metroRun() {
+    clearInterval(MET.timer);
+    cancelAnimationFrame(MET.raf);
+    MET.lastBeat = null;
+    paintBeat(-1);
+    if (!MET.on || !ON.inRoom) return;
+    MET.timer = setInterval(metroTick, 25);
+    metroTick();
+    MET.raf = requestAnimationFrame(metroFrame);
+  }
+  function metroTick() {
+    if (!MET.on || !ctx || (!isHostClock() && !MET.synced)) return;
+    const beatMs = 60000 / MET.bpm, nowP = performance.now(), nowH = hostNow();
+    const outLag = Math.max(0, (ctx.currentTime - audibleAt(nowP)) * 1000);
+    const horizon = nowH + outLag + 150;
+    if (MET.nextIdx == null) MET.nextIdx = Math.max(0, Math.ceil((nowH - MET.start - 15) / beatMs));
+    for (let guard = 0; guard < 64; guard++) {
+      const tH = MET.start + MET.nextIdx * beatMs;
+      if (tH > horizon) break;
+      if (tH >= nowH - 15 && !MET.mute) {
+        const localP = tH - (isHostClock() ? 0 : MET.offset);
+        trigger('sticks', audibleAt(localP), MET.nextIdx % MET.beats === 0 ? 0.85 : 0.45, null, 'metro');
+      }
+      MET.nextIdx++;
+    }
+  }
+  function metroFrame() {
+    if (!MET.on) return;
+    if (isHostClock() || MET.synced) {
+      const idx = Math.floor((hostNow() - MET.start) / (60000 / MET.bpm));
+      if (idx !== MET.lastBeat) { MET.lastBeat = idx; paintBeat(idx >= 0 ? idx % MET.beats : -1); }
+    }
+    MET.raf = requestAnimationFrame(metroFrame);
+  }
+  function paintBeat(i) {
+    const dots = $('mtBeats').children;
+    for (let k = 0; k < dots.length; k++) dots[k].classList.toggle('on', k === i);
+  }
+  function renderMetro() {
+    const dots = $('mtBeats');
+    if (dots.children.length !== MET.beats) dots.innerHTML = Array.from({ length: MET.beats }, (_, k) => '<i' + (k === 0 ? ' class="first"' : '') + '></i>').join('');
+    $('mtBpm').textContent = MET.bpm;
+    $('mtMeter').value = String(MET.beats);
+    const host = ON.isHost;
+    document.querySelectorAll('[data-mt="bpm"]').forEach(b => (b.disabled = !host));
+    $('mtMeter').disabled = !host;
+    const tg = $('mtToggle');
+    tg.disabled = !host;
+    tg.textContent = MET.on ? 'ストップ' : 'スタート';
+    $('mtMute').setAttribute('aria-pressed', String(MET.mute));
+    $('mtMute').textContent = MET.mute ? 'クリック音：消音中' : 'クリック音を消す';
+    $('mtNote').textContent = host
+      ? 'メトロノームはホストのあなたが操作します。全員の端末で同じ瞬間にクリックが鳴るよう、時刻を合わせて送ります。'
+      : 'メトロノームはホストが操作します。' + (MET.synced ? 'ホストとの時刻合わせ ±' + Math.max(1, Math.round(MET.err || 0)) + ' ms。' : 'ホストと時刻を合わせています…');
+  }
+  $('onMetro').addEventListener('click', e => {
+    const b = e.target.closest('[data-mt]');
+    if (!b || b.disabled) return;
+    const act = b.dataset.mt;
+    if (act === 'mute') { MET.mute = !MET.mute; renderMetro(); return; }
+    ensureCtx(); if (ctx.state !== 'running') ctx.resume();
+    if (act === 'bpm') metroChange({ bpm: Math.max(30, Math.min(300, MET.bpm + Number(b.dataset.d))) });
+    if (act === 'toggle') metroChange({ on: !MET.on });
+  });
+  $('mtMeter').addEventListener('change', e => { metroChange({ beats: Number(e.target.value) }); e.target.blur(); });
+  function metroReset() {
+    Object.assign(MET, { on: false, start: 0, v: 0, nextIdx: null, offset: 0, samples: [], synced: false, err: 0 });
+    clearInterval(MET.timer); clearInterval(MET.resend); cancelAnimationFrame(MET.raf);
+    paintBeat(-1);
   }
 
   // ---- lobby buttons ----
