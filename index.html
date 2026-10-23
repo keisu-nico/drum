@@ -305,50 +305,67 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .on-msg.err{color:var(--err)} .on-msg.ok{color:var(--ok)}
 .on-room{flex:none; min-height:100%; display:flex; flex-direction:column; gap:10px; min-width:0}
 .on-room > *{min-width:0}
-.on-head{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px}
+.on-head{display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px}
 .on-head > *{min-width:0}
-.on-head .btn{padding:7px 12px}
-.on-head .eyebrow{margin:0}
-.on-code{font-family:var(--font-mono); font-size:clamp(18px, 6vw, 24px); letter-spacing:.2em; line-height:1}
+.on-head .btn{padding:6px 12px; font-size:12px}
+.on-codebox{display:flex; align-items:baseline; gap:8px; margin-right:auto; flex-wrap:wrap}
+.on-codebox small{font-size:11px; font-weight:700; color:var(--muted)}
+.on-code{font-family:var(--font-mono); font-size:20px; letter-spacing:.16em; line-height:1}
 .on-via{font-size:11px; color:var(--muted)}
-.on-head .grow{margin-right:auto}
-.on-players{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px}
+
+/* players: one thin chip each; tap someone else's chip to mute them */
+.on-players{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px}
 @media (max-width:760px){ .on-players{grid-template-columns:repeat(2, minmax(0, 1fr))} }
-.pl{position:relative; border:1px solid var(--line); border-top:4px solid var(--pc, var(--line)); border-radius:12px; background:var(--surface); padding:7px 10px 8px; display:flex; flex-direction:column; gap:3px; min-width:0}
-.pl.empty{border-style:dashed; border-top-width:1px; color:var(--muted); justify-content:center; font-size:12px; min-height:64px}
-.pl-top{display:flex; align-items:center; gap:6px; min-width:0}
-.pl-name{font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
-.pl-tag{flex-shrink:0; font-size:10px; font-weight:700; padding:0 6px; border-radius:999px; border:1px solid currentColor; color:var(--muted)}
-.pl-mute{margin-left:auto; flex-shrink:0; font-size:11px; padding:1px 8px; border:1px solid var(--line); border-radius:999px; background:var(--bg); color:var(--fg); cursor:pointer}
-.pl-mute[aria-pressed="true"]{color:var(--err); border-color:var(--err)}
-.pl-lat{font-family:var(--font-mono); font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; line-height:1.5}
-.pl-lat b{color:var(--fg); font-weight:500}
-.pl-lat b.warn{color:var(--err)}
-.pl-lights{display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:3px; margin-top:2px}
-.pl-lights span{position:relative; height:16px; border-radius:4px; background:var(--surface-2); font-family:var(--font-mono); font-size:8px; line-height:16px; text-align:center; color:var(--muted); overflow:hidden}
-.pl-lights span i{position:absolute; inset:0; background:var(--pc); opacity:0}
-.on-kit{flex:1 0 auto; min-height:max(300px, min(58vh, 520px))}
-.metro{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; padding:8px 12px; background:var(--surface); border:1px solid var(--line); border-radius:12px}
-.mt-beats{display:flex; gap:6px}
-.mt-beats i{width:14px; height:14px; border-radius:50%; background:var(--surface-2); border:1px solid var(--line)}
-.mt-beats i.first{width:18px; height:18px}
-.mt-beats i.on{background:var(--accent); border-color:var(--accent)}
+.pl{position:relative; overflow:hidden; display:flex; align-items:center; gap:6px; height:30px; padding:0 9px; min-width:0;
+  border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--fg); font:inherit; text-align:left}
+button.pl{cursor:pointer}
+.pl-glow{position:absolute; inset:0; background:var(--pc); opacity:0; pointer-events:none}
+.pl-dot{flex-shrink:0; width:9px; height:9px; border-radius:50%; background:var(--pc); position:relative}
+.pl-name{position:relative; font-weight:700; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1}
+.pl-tag{position:relative; flex-shrink:0; font-size:9px; font-weight:700; color:var(--muted)}
+.pl-ms{position:relative; flex-shrink:0; font-family:var(--font-mono); font-size:11px; font-variant-numeric:tabular-nums; color:var(--muted)}
+.pl-ms.warn{color:var(--err)}
+.pl.muted .pl-name{text-decoration:line-through; color:var(--muted)}
+.pl.muted .pl-dot{background:transparent; box-shadow:inset 0 0 0 2px var(--pc)}
+.pl.empty{border-style:dashed; color:var(--muted); font-size:11px; justify-content:center}
+.on-kit{flex:1 1 auto; min-height:220px}
+
+/* metronome: one thin row */
+.metro{display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; padding:5px 8px; background:var(--surface); border:1px solid var(--line); border-radius:999px}
 .metro > *{min-width:0}
-.mt-bpm{display:flex; flex-wrap:wrap; align-items:center; gap:4px}
-.mt-bpm b{font-family:var(--font-display); font-weight:800; font-size:26px; min-width:3ch; text-align:center; font-variant-numeric:tabular-nums; line-height:1}
-.mt-bpm span{font-size:11px; color:var(--muted); margin-right:4px}
-.mt-bpm .mini{min-width:34px; padding:5px 6px}
-.metro select{font:inherit; font-size:13px; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:5px 8px}
-.mt-note{font-size:11px; color:var(--muted); line-height:1.5; flex-basis:100%}
-.metro .mini:disabled,.metro select:disabled{opacity:.45}
+.metro button,.metro select{white-space:nowrap; flex-shrink:0}
+.mt-beats{display:flex; align-items:center; gap:4px; padding:0 4px}
+.mt-beats i{width:9px; height:9px; border-radius:50%; background:var(--surface-2); border:1px solid var(--line)}
+.mt-beats i.first{width:12px; height:12px}
+.mt-beats i.on{background:var(--accent); border-color:var(--accent)}
+.mt-step{width:30px; height:30px; padding:0; border-radius:50%; border:1px solid var(--line); background:var(--bg); color:var(--fg); font-size:16px; line-height:1; cursor:pointer; touch-action:none}
+.metro b{font-family:var(--font-display); font-weight:800; font-size:22px; min-width:2.6ch; text-align:center; font-variant-numeric:tabular-nums; line-height:1}
+.mt-unit{font-size:10px; color:var(--muted); margin-left:-4px}
+.metro select{font:inherit; font-size:12px; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:999px; padding:4px 6px}
+.metro .btn.sm{padding:5px 12px; font-size:12px}
+.mt-mute{padding:5px 10px; font-size:12px; font-weight:700; border:1px solid var(--line); border-radius:999px; background:var(--bg); color:var(--fg); cursor:pointer}
+.mt-mute[aria-pressed="true"]{color:var(--err); border-color:var(--err)}
+.mt-sync{font-size:11px; color:var(--muted); margin-left:auto; white-space:nowrap}
+.metro button:disabled,.metro select:disabled{opacity:.4; cursor:default}
 
 @media (max-width:520px){
-  .pl{padding:6px 8px 7px}
-  .pl-lat{font-size:10px}
-  .pl-lights span{height:12px; line-height:12px; font-size:7px}
-  .metro{padding:8px 10px; gap:6px 10px}
-  .mt-bpm b{font-size:22px}
   [data-view="online"] .rec, [data-view="free"] .rec{display:none}
+  [data-view="online"] .brand{display:none}
+  [data-view="online"] .bar{gap:6px}
+  [data-view="online"] .tab{padding:6px 10px; font-size:12px}
+  [data-view="online"] #openSettings{padding:6px 10px; font-size:12px}
+  .mt-unit,.mt-sync{display:none}
+  .pad{padding:6px 6px 24px}
+  .pad .name{bottom:6px; font-size:13px}
+  .metro{gap:4px; padding:4px 6px; flex-wrap:nowrap}
+  .mt-beats{gap:2px; padding:0 2px; flex-shrink:1}
+  .mt-beats i{width:7px; height:7px}
+  .mt-beats i.first{width:10px; height:10px}
+  .mt-step{width:28px; height:28px}
+  .metro b{font-size:20px; min-width:2.4ch}
+  .metro select{font-size:11px; padding:3px 2px}
+  .metro .btn.sm{padding:5px 9px}
+  .mt-mute{padding:5px 8px}
 }
 /* pads squeezed very flat: show the label only */
 @container (max-height: 34px){ .pad .shape{display:none} }
@@ -463,28 +480,23 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
     </div>
     <div class="on-room" id="onRoom" hidden>
       <div class="on-head">
-        <div class="grow"><p class="eyebrow">部屋のコード</p><span class="on-code" id="onCodeShow"></span></div>
-        <button class="btn" id="onCopy" type="button">コードをコピー</button>
-        <button class="btn" id="onLeave" type="button">退室する</button>
-        <span class="on-via" id="onState" style="flex-basis:100%"></span>
+        <div class="on-codebox"><small>部屋</small><span class="on-code" id="onCodeShow"></span><span class="on-via" id="onState"></span></div>
+        <button class="btn" id="onCopy" type="button">コピー</button>
+        <button class="btn" id="onLeave" type="button">退室</button>
       </div>
       <div class="on-players" id="onPlayers"></div>
       <div class="metro" id="onMetro">
         <div class="mt-beats" id="mtBeats" aria-hidden="true"></div>
-        <div class="mt-bpm">
-          <button class="mini" type="button" data-mt="bpm" data-d="-5" aria-label="BPMを5下げる">−5</button>
-          <button class="mini" type="button" data-mt="bpm" data-d="-1" aria-label="BPMを1下げる">−1</button>
-          <b id="mtBpm">120</b><span>BPM</span>
-          <button class="mini" type="button" data-mt="bpm" data-d="1" aria-label="BPMを1上げる">+1</button>
-          <button class="mini" type="button" data-mt="bpm" data-d="5" aria-label="BPMを5上げる">+5</button>
-        </div>
+        <button class="mt-step" type="button" data-step="-1" aria-label="BPMを下げる（長押しで連続）">−</button>
+        <b id="mtBpm">120</b><span class="mt-unit">BPM</span>
+        <button class="mt-step" type="button" data-step="1" aria-label="BPMを上げる（長押しで連続）">+</button>
         <select id="mtMeter" aria-label="拍子">
-          <option value="2">2拍子</option><option value="3">3拍子</option><option value="4" selected>4拍子</option>
-          <option value="5">5拍子</option><option value="6">6拍子</option><option value="7">7拍子</option>
+          <option value="2">2拍</option><option value="3">3拍</option><option value="4" selected>4拍</option>
+          <option value="5">5拍</option><option value="6">6拍</option><option value="7">7拍</option>
         </select>
-        <button class="btn primary" type="button" data-mt="toggle" id="mtToggle">スタート</button>
-        <button class="mini" type="button" data-mt="mute" id="mtMute" aria-pressed="false">クリック音を消す</button>
-        <span class="mt-note" id="mtNote"></span>
+        <button class="btn sm primary" type="button" data-mt="toggle" id="mtToggle">開始</button>
+        <button class="mt-mute" type="button" data-mt="mute" id="mtMute" aria-pressed="false">消音</button>
+        <span class="mt-sync" id="mtNote"></span>
       </div>
       <div class="stage on-kit" id="onKit" aria-label="あなたのドラム"></div>
     </div>
@@ -2540,7 +2552,7 @@ const LESSONS = [
   $('onLeave').addEventListener('click', () => leaveRoom('退室しました。'));
   $('onCopy').addEventListener('click', () => {
     const t = ON.code, btn = $('onCopy');
-    const done = () => { btn.textContent = 'コピーしました'; setTimeout(() => (btn.textContent = 'コードをコピー'), 1500); };
+    const done = () => { btn.textContent = 'コピー済み'; setTimeout(() => (btn.textContent = 'コピー'), 1500); };
     try { navigator.clipboard.writeText(t).then(done, () => {}); } catch (e) {}
   });
   window.addEventListener('pagehide', () => { if (ON.inRoom) leaveRoom(); });
@@ -2556,18 +2568,19 @@ const LESSONS = [
       const me = p.id === ON.myId, host = p.id === ON.hostId || p.host;
       const oneWay = p.rtt != null ? Math.round(p.rtt / 2) : null;
       const lat = me ? myLat() : p.lat;
-      h += '<div class="pl" data-id="' + escH(p.id) + '" style="--pc:var(--p' + (i + 1) + ')">' +
-        '<div class="pl-top"><span class="pl-name">' + escH(p.name || 'プレイヤー') + '</span>' +
-        (me ? '<span class="pl-tag">あなた</span>' : '') + (host ? '<span class="pl-tag">ホスト</span>' : '') +
-        (me ? '' : '<button class="pl-mute" type="button" data-mute="' + escH(p.id) + '" aria-pressed="' + !!p.mute + '">' + (p.mute ? 'ミュート中' : '音あり') + '</button>') + '</div>' +
-        '<div class="pl-lat">' + (me ? '' : '通信 <b' + (oneWay != null && oneWay > 60 ? ' class="warn"' : '') + '>' + (oneWay != null ? oneWay + ' ms' : '測定中') + '</b>（片道）<br>') +
-        '端末の音 <b>' + (lat != null ? lat + ' ms' : '—') + '</b></div>' +
-        '<div class="pl-lights">' + LIGHT_ORDER.map(k => '<span data-s="' + k + '"><i></i>' + LIGHT_SHORT[k] + '</span>').join('') + '</div></div>';
+      const title = (me ? 'あなた' : '通信（片道） ' + (oneWay != null ? oneWay + ' ms' : '測定中')) + ' / 端末の音 ' + (lat != null ? lat + ' ms' : '—') +
+        (me ? '' : (p.mute ? ' — タップで音を戻す' : ' — タップでミュート'));
+      const tag = me ? 'あなた' : host ? 'ホスト' : '';
+      const inner = '<span class="pl-glow"></span><i class="pl-dot"></i><span class="pl-name">' + escH(p.name || 'プレイヤー') + '</span>' +
+        (tag ? '<span class="pl-tag">' + tag + '</span>' : '') +
+        (me ? '' : '<span class="pl-ms' + (oneWay != null && oneWay > 60 ? ' warn' : '') + '">' + (oneWay != null ? oneWay + 'ms' : '…') + '</span>');
+      h += me
+        ? '<div class="pl" data-id="' + escH(p.id) + '" style="--pc:var(--p' + (i + 1) + ')" title="' + escH(title) + '">' + inner + '</div>'
+        : '<button class="pl' + (p.mute ? ' muted' : '') + '" type="button" data-id="' + escH(p.id) + '" data-mute="' + escH(p.id) + '" aria-pressed="' + !!p.mute + '" style="--pc:var(--p' + (i + 1) + ')" title="' + escH(title) + '" aria-label="' + escH((p.name || 'プレイヤー') + '、' + title) + '">' + inner + '</button>';
     }
     $('onPlayers').innerHTML = h;
     const n = ON.players.size;
-    $('onState').textContent = (ON.mode === 'p2p' ? 'P2P 接続' : 'claude.ai 経由') + ' · ' + n + ' / ' + MAX_PLAYERS + ' 人' +
-      (n < 2 ? ' · コードを伝えて、ほかの人の入室を待っています' : '');
+    $('onState').textContent = (ON.mode === 'p2p' ? 'P2P' : '中継') + ' · ' + n + '/' + MAX_PLAYERS + '人' + (n < 2 ? ' · 入室待ち' : '');
   }
   $('onPlayers').addEventListener('click', e => {
     const b = e.target.closest('[data-mute]');
@@ -2575,10 +2588,10 @@ const LESSONS = [
     const p = ON.players.get(b.dataset.mute);
     if (p) { p.mute = !p.mute; renderPlayers(); }
   });
-  function flashLight(pid, s) {
+  function flashLight(pid) {
     const card = $('onPlayers').querySelector('.pl[data-id="' + (window.CSS && CSS.escape ? CSS.escape(pid) : pid) + '"]');
-    const i = card && card.querySelector('[data-s="' + s + '"] i');
-    if (i && i.animate) i.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-out' });
+    const g = card && card.querySelector('.pl-glow');
+    if (g && g.animate) g.animate([{ opacity: 0.35 }, { opacity: 0 }], { duration: 200, easing: 'ease-out' });
   }
   function setRtt(pid, rtt) {
     const p = ON.players.get(pid);
@@ -2786,7 +2799,7 @@ const LESSONS = [
   }
 
   // ---- shared metronome: the host owns tempo; everyone keeps time on the host's clock ----
-  const MET = { on: false, bpm: 120, beats: 4, start: 0, v: 0, mute: false, nextIdx: null, timer: 0, raf: 0, lastBeat: null,
+  const MET = { on: false, bpm: 120, beats: 4, start: 0, v: 0, mute: false, draft: null, nextIdx: null, timer: 0, raf: 0, lastBeat: null,
     offset: 0, samples: [], synced: false, resend: 0 };
   const isHostClock = () => ON.isHost;
   const hostNow = () => performance.now() + (isHostClock() ? 0 : MET.offset);
@@ -2877,19 +2890,18 @@ const LESSONS = [
   function renderMetro() {
     const dots = $('mtBeats');
     if (dots.children.length !== MET.beats) dots.innerHTML = Array.from({ length: MET.beats }, (_, k) => '<i' + (k === 0 ? ' class="first"' : '') + '></i>').join('');
-    $('mtBpm').textContent = MET.bpm;
+    $('mtBpm').textContent = MET.draft != null ? MET.draft : MET.bpm;
     $('mtMeter').value = String(MET.beats);
     const host = ON.isHost;
-    document.querySelectorAll('[data-mt="bpm"]').forEach(b => (b.disabled = !host));
+    document.querySelectorAll('.mt-step').forEach(b => (b.disabled = !host));
     $('mtMeter').disabled = !host;
     const tg = $('mtToggle');
     tg.disabled = !host;
-    tg.textContent = MET.on ? 'ストップ' : 'スタート';
+    tg.textContent = MET.on ? '停止' : '開始';
     $('mtMute').setAttribute('aria-pressed', String(MET.mute));
-    $('mtMute').textContent = MET.mute ? 'クリック音：消音中' : 'クリック音を消す';
-    $('mtNote').textContent = host
-      ? 'メトロノームはホストのあなたが操作します。全員の端末で同じ瞬間にクリックが鳴るよう、時刻を合わせて送ります。'
-      : 'メトロノームはホストが操作します。' + (MET.synced ? 'ホストとの時刻合わせ ±' + Math.max(1, Math.round(MET.err || 0)) + ' ms。' : 'ホストと時刻を合わせています…');
+    $('mtMute').title = MET.mute ? 'クリック音を鳴らす（自分の端末だけ）' : 'クリック音を消す（自分の端末だけ）';
+    $('onMetro').title = host ? 'メトロノームはホストのあなたが操作します' : 'メトロノームはホストが操作します';
+    $('mtNote').textContent = host ? 'あなたが操作' : MET.synced ? '同期 ±' + Math.max(1, Math.round(MET.err || 0)) + 'ms' : '同期中…';
   }
   $('onMetro').addEventListener('click', e => {
     const b = e.target.closest('[data-mt]');
@@ -2897,8 +2909,28 @@ const LESSONS = [
     const act = b.dataset.mt;
     if (act === 'mute') { MET.mute = !MET.mute; renderMetro(); return; }
     ensureCtx(); if (ctx.state !== 'running') ctx.resume();
-    if (act === 'bpm') metroChange({ bpm: Math.max(30, Math.min(300, MET.bpm + Number(b.dataset.d))) });
     if (act === 'toggle') metroChange({ on: !MET.on });
+  });
+  // BPM: tap for ±1, hold to run (faster the longer you hold); sent to everyone on release
+  let holdT = 0, holdN = 0;
+  function stepDraft(d) { MET.draft = Math.max(30, Math.min(300, (MET.draft != null ? MET.draft : MET.bpm) + d)); $('mtBpm').textContent = MET.draft; }
+  function endHold() {
+    clearTimeout(holdT);
+    if (MET.draft == null) return;
+    const v = MET.draft; MET.draft = null;
+    if (v !== MET.bpm) metroChange({ bpm: v }); else renderMetro();
+  }
+  document.querySelectorAll('.mt-step').forEach(b => {
+    b.addEventListener('pointerdown', e => {
+      if (b.disabled || e.button > 0) return;
+      e.preventDefault();
+      const d = Number(b.dataset.step);
+      holdN = 0; stepDraft(d);
+      const rep = () => { holdN++; stepDraft(d * (holdN > 12 ? 5 : 1)); holdT = setTimeout(rep, holdN > 12 ? 140 : 90); };
+      holdT = setTimeout(rep, 420);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => b.addEventListener(t, endHold));
+    b.addEventListener('click', e => { if (e.detail === 0 && !b.disabled) { stepDraft(Number(b.dataset.step)); endHold(); } });
   });
   $('mtMeter').addEventListener('change', e => { metroChange({ beats: Number(e.target.value) }); e.target.blur(); });
   function metroReset() {
