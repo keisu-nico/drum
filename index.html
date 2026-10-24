@@ -127,9 +127,15 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .stage.full .pad[data-id="sticks"]{padding:6px 4px 22px}
 .stage.full .pad[data-id="sticks"] .name{font-size:11px; letter-spacing:.02em; bottom:6px}
 @media (min-aspect-ratio: 1/1){
+  /* landscape: laid out as seen from the drum throne —
+     hi-hat stand on the left (pedal at its foot), crash above it,
+     snare in front, rack toms sitting on the kick, ride on the right */
   .stage.full{
-    grid-template-columns:repeat(7, 1fr); grid-template-rows:1fr 1fr;
-    grid-template-areas:"open crash htom mtom ride kick kick" "closed snare sticks pedal bell kick kick";
+    grid-template-columns:repeat(7, 1fr) .62fr; grid-template-rows:1fr 1fr 1fr;
+    grid-template-areas:
+      "crash  crash  htom  htom  mtom mtom ride ride"
+      "open   closed snare snare kick kick ride ride"
+      "pedal  pedal  snare snare kick kick bell sticks";
   }
 }
 .pad{
@@ -378,13 +384,31 @@ button.pl{cursor:pointer}
 .mt-mute[aria-pressed="true"]{color:var(--err); border-color:var(--err)}
 .mt-sync{font-size:11px; color:var(--muted); margin-left:auto; white-space:nowrap}
 .metro button:disabled,.metro select:disabled{opacity:.4; cursor:default}
+/* chord backing row (free play) */
+.chordbar .mt-mute[aria-pressed="true"]{background:var(--fg); color:var(--bg); border-color:var(--fg)}
+.ch-now{display:flex; align-items:baseline; gap:6px; min-width:0; margin-left:auto}
+.ch-now b{font-family:var(--font-display); font-weight:800; font-size:20px; line-height:1; color:var(--r-good); white-space:nowrap}
+.ch-now small{font-family:var(--font-mono); font-size:11px; color:var(--muted); white-space:nowrap}
+.ch-now.off b{color:var(--muted)}
+.chs-row{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; font-size:13px}
+.chs-row > span:first-child{min-width:6.5em; font-size:12px; font-weight:700; color:var(--muted)}
+.chs-row input[type=range]{accent-color:var(--accent)}
+.chq{display:flex; flex-wrap:wrap; gap:6px; align-items:center; min-height:30px}
+.chq .empty{font-size:12px; color:var(--muted)}
+.chq button{display:inline-flex; gap:6px; align-items:center; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--fg); font:inherit; font-size:12px; font-weight:700; cursor:pointer}
+.chq button span{color:var(--muted)}
+.chadd{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:6px}
+.chadd button{text-align:left; padding:6px 10px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--fg); font:inherit; font-size:12px; cursor:pointer}
+.chadd button small{display:block; font-family:var(--font-mono); font-size:10px; color:var(--muted)}
 
 @media (max-width:520px){
-  [data-view="online"] .brand{display:none}
-  [data-view="online"] .bar{gap:6px}
-  [data-view="online"] .tab{padding:6px 10px; font-size:12px}
-  [data-view="online"] #openSettings{padding:6px 10px; font-size:12px}
+  [data-view="online"] .brand, [data-view="free"] .brand{display:none}
+  [data-view="online"] .bar, [data-view="free"] .bar{gap:6px}
+  [data-view="online"] .tab, [data-view="free"] .tab{padding:6px 10px; font-size:12px}
+  [data-view="online"] #openSettings, [data-view="free"] #openSettings{padding:6px 10px; font-size:12px}
   .mt-unit,.mt-sync{display:none}
+  .ch-now small{display:none}
+  .chordbar select{max-width:118px}
   .pad{padding:6px 6px 24px}
   .pad .name{bottom:6px; font-size:13px}
   .metro{gap:4px; padding:4px 6px; flex-wrap:nowrap}
@@ -396,6 +420,49 @@ button.pl{cursor:pointer}
   .metro select{font-size:11px; padding:3px 2px}
   .metro .btn.sm{padding:5px 9px}
   .mt-mute{padding:5px 8px}
+}
+/* phone held sideways: little height, so tighten everything around the kit */
+@media (orientation:landscape) and (max-height:520px){
+  html.padAuto .app{padding-bottom:max(8px, env(safe-area-inset-bottom, 0px))}
+  .app{gap:6px; padding-top:6px}
+  [data-view="online"] .brand, [data-view="free"] .brand{display:none}
+  [data-view="online"] .bar, [data-view="free"] .bar{gap:6px}
+  [data-view="online"] .tab, [data-view="free"] .tab{padding:5px 10px; font-size:12px}
+  [data-view="online"] #openSettings, [data-view="free"] #openSettings{padding:5px 10px; font-size:12px}
+  /* free play: metronome and chord strips side by side on one line */
+  .free{display:grid; grid-template-columns:auto minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); gap:6px}
+  .free > .stage{grid-column:1 / -1}
+  .mt-unit,.mt-sync{display:none}
+  .ch-now small{display:none}
+  .chordbar select{max-width:118px}
+  .metro{gap:4px; padding:3px 6px; flex-wrap:nowrap}
+  .mt-beats{gap:2px; padding:0 2px; flex-shrink:1}
+  .mt-beats i{width:7px; height:7px}
+  .mt-beats i.first{width:10px; height:10px}
+  .mt-step{width:26px; height:26px}
+  .metro b{font-size:19px; min-width:2.4ch}
+  .metro select{font-size:11px; padding:3px 2px}
+  .metro .btn.sm{padding:4px 9px}
+  .mt-mute{padding:4px 8px}
+  .stage{gap:6px}
+  .pad{padding:4px 4px 19px; border-radius:12px}
+  .pad .name{bottom:4px; font-size:11px; letter-spacing:.04em}
+  .stage.full .pad[data-id="sticks"]{padding:4px 2px 19px}
+  .stage.full .pad[data-id="sticks"] .name{font-size:9px; bottom:4px}
+  .pad kbd{top:4px; left:4px; font-size:10px; padding:0 4px}
+  /* online room: header beside the player chips, metronome beside chords, kit below */
+  .online{gap:6px}
+  .on-room{display:grid; grid-template-columns:auto minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr); gap:6px; align-items:center}
+  .on-room > .on-kit{grid-column:1 / -1; align-self:stretch; min-height:190px}
+  .on-head{flex-wrap:nowrap}
+  .on-head .btn{padding:5px 10px}
+  .on-code{font-size:16px; letter-spacing:.12em}
+  .on-codebox{flex-wrap:nowrap; gap:6px}
+  .on-via{white-space:nowrap; max-width:13em; overflow:hidden; text-overflow:ellipsis}
+  .pl{height:26px}
+}
+@media (orientation:landscape) and (max-height:520px) and (max-width:960px){
+  .on-players{grid-template-columns:repeat(2, minmax(0, 1fr))}
 }
 /* pads squeezed very flat: show the label only */
 @container (max-height: 34px){ .pad .shape{display:none} }
@@ -526,6 +593,13 @@ button.pl{cursor:pointer}
         <button class="mt-mute" type="button" data-mt="mute" id="mtMute" aria-pressed="false">消音</button>
         <span class="mt-sync" id="mtNote"></span>
       </div>
+      <div class="metro chordbar" id="onChords">
+        <button class="mt-mute" type="button" id="ocOn" aria-pressed="false" title="メトロノームに合わせてコードを流す（ホストが操作）">コード</button>
+        <select id="ocProg" aria-label="コード進行"></select>
+        <select id="ocKey" aria-label="キー"></select>
+        <span class="ch-now off" id="ocNowBox"><b id="ocNow">—</b><small id="ocNext"></small></span>
+        <button class="mt-mute" type="button" id="ocMore" title="音色・刻み・ベース・音量（自分の端末だけ）">設定</button>
+      </div>
       <div class="stage full on-kit" id="onKit" aria-label="あなたのドラム"></div>
     </div>
   </section>
@@ -542,6 +616,13 @@ button.pl{cursor:pointer}
       </select>
       <button class="btn sm primary" type="button" id="frToggle">開始</button>
       <span class="mt-sync">メトロノーム</span>
+    </div>
+    <div class="metro chordbar" id="frChords">
+      <button class="mt-mute" type="button" id="chOn" aria-pressed="false" title="メトロノームに合わせてコードを流す">コード</button>
+      <select id="chProg" aria-label="コード進行"></select>
+      <select id="chKey" aria-label="キー"></select>
+      <span class="ch-now off" id="chNowBox"><b id="chNow">—</b><small id="chNext"></small></span>
+      <button class="mt-mute" type="button" id="chMore">設定</button>
     </div>
     <main class="stage full" id="stage" aria-label="ドラムセット"></main>
   </section>
@@ -643,6 +724,23 @@ button.pl{cursor:pointer}
   </section>
 </div>
 
+<div class="backdrop" id="chordDlg" hidden>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="chTitle">
+    <h2 id="chTitle">コードの設定</h2>
+    <div class="chs-row"><span>音色</span><div class="seg" id="chTone">
+      <button class="segb" type="button" data-v="pad">A パッド</button><button class="segb" type="button" data-v="ep">B エレピ</button><button class="segb" type="button" data-v="pluck">C プラック</button></div></div>
+    <div class="chs-row"><span>刻み</span><div class="seg" id="chRhythm">
+      <button class="segb" type="button" data-v="hold">伸ばす</button><button class="segb" type="button" data-v="q">4分</button><button class="segb" type="button" data-v="e">8分</button><button class="segb" type="button" data-v="off">裏拍</button></div></div>
+    <div class="chs-row"><span>ベース</span><div class="seg" id="chBass"><button class="segb" type="button" data-v="1">あり</button><button class="segb" type="button" data-v="0">なし</button></div></div>
+    <div class="chs-row"><span>クリック音</span><div class="seg" id="chClick"><button class="segb" type="button" data-v="1">鳴らす</button><button class="segb" type="button" data-v="0">消す</button></div><small class="note">コードを流している間のメトロノーム</small></div>
+    <label class="chs-row" for="chVol"><span>コードの音量</span><input id="chVol" type="range" min="0" max="100"><output id="chVolOut"></output></label>
+    <h3>進行をつなげる</h3>
+    <p class="note">下の進行を押すと、この順番に追加されます。追加したものは、コード進行の選択肢の「つなげた進行」で流れます。並びのチップを押すと外れます。</p>
+    <div class="chq" id="chQueue"></div>
+    <div class="chadd" id="chAdd"></div>
+    <div class="row"><button class="btn" type="button" id="chClose">閉じる</button></div>
+  </section>
+</div>
 <div class="backdrop" id="resultDlg" hidden>
   <section class="sheet" role="dialog" aria-modal="true" aria-label="結果" id="resultBody"></section>
 </div>
@@ -2166,6 +2264,8 @@ const LESSONS = [
   function applyBarPad() {
     const v = prefs.barPad == null || prefs.barPad === 'auto' ? (iosSafari ? 72 : 0) : Number(prefs.barPad) || 0;
     document.documentElement.style.setProperty('--bar-pad', v + 'px');
+    // iOS Safari's floating bar only sits at the bottom in portrait; sideways the auto padding is dropped
+    document.documentElement.classList.toggle('padAuto', prefs.barPad == null || prefs.barPad === 'auto');
     $('barPad').value = prefs.barPad == null ? 'auto' : String(prefs.barPad);
   }
   applyBarPad();
@@ -2925,6 +3025,8 @@ const LESSONS = [
   }
 
   // ---- shared metronome: the host owns tempo; everyone keeps time on the host's clock ----
+  // shared chord state in a room (the host decides; everyone plays it on the host's clock)
+  const ONCH = { on: false, sel: 'oudou', ids: ['oudou'], key: 0, seq: null, last: -2 };
   const MET = { on: false, bpm: 120, beats: 4, start: 0, v: 0, mute: false, draft: null, nextIdx: null, timer: 0, raf: 0, lastBeat: null,
     offset: 0, samples: [], synced: false, resend: 0 };
   const isHostClock = () => ON.isHost;
@@ -2939,10 +3041,10 @@ const LESSONS = [
     MET.err = best.rtt / 2;
     const was = MET.synced;
     MET.synced = true;
-    if (!was) { MET.nextIdx = null; metroRun(); }
+    if (!was) { MET.nextIdx = null; MET.nextE = null; metroRun(); }
     renderMetro();
   }
-  function metroState() { return { t: 'metro', on: MET.on, bpm: MET.bpm, beats: MET.beats, start: MET.start, v: MET.v }; }
+  function metroState() { return { t: 'metro', on: MET.on, bpm: MET.bpm, beats: MET.beats, start: MET.start, v: MET.v, ch: { on: ONCH.on, sel: ONCH.sel, ids: ONCH.ids, key: ONCH.key } }; }
   function metroBroadcast() {
     if (!ON.isHost || !ON.inRoom) return;
     if (ON.mode === 'p2p') sendAll(metroState());
@@ -2955,9 +3057,18 @@ const LESSONS = [
     MET.bpm = Math.max(30, Math.min(300, d.bpm | 0));
     MET.beats = Math.max(1, Math.min(12, d.beats | 0 || 4));
     MET.start = d.start; MET.v = d.v | 0;
-    MET.nextIdx = null;
+    MET.nextIdx = null; MET.nextE = null;
+    if (d.ch && typeof d.ch === 'object') {
+      const ids = Array.isArray(d.ch.ids) ? d.ch.ids.filter(id => CH_PROGS.some(x => x.id === id)).slice(0, 16) : [];
+      ONCH.on = !!d.ch.on;
+      ONCH.sel = typeof d.ch.sel === 'string' ? d.ch.sel : 'oudou';
+      ONCH.ids = ids.length ? ids : ['oudou'];
+      ONCH.key = Math.max(0, Math.min(11, d.ch.key | 0));
+      ocRebuild();
+    }
     metroRun();
     renderMetro();
+    ocRender();
   }
   // host action: change tempo or metre without breaking the pulse (new bar starts on the next beat)
   function metroChange(patch) {
@@ -2970,9 +3081,10 @@ const LESSONS = [
     Object.assign(MET, patch);
     if (patch.on === true) MET.start = now + 900;
     MET.v++;
-    MET.nextIdx = null;
+    MET.nextIdx = null; MET.nextE = null;
     metroRun();
     renderMetro();
+    ocRender();
     metroBroadcast();
   }
   function metroRun() {
@@ -2994,11 +3106,21 @@ const LESSONS = [
     for (let guard = 0; guard < 64; guard++) {
       const tH = MET.start + MET.nextIdx * beatMs;
       if (tH > horizon) break;
-      if (tH >= nowH - 15 && !MET.mute) {
+      if (tH >= nowH - 15 && !MET.mute && !(ONCH.on && !CH.click)) {
         const localP = tH - (isHostClock() ? 0 : MET.offset);
         metroClick(audibleAt(localP), MET.nextIdx % MET.beats === 0);
       }
       MET.nextIdx++;
+    }
+    if (ONCH.on && ONCH.seq) {
+      const eMs = beatMs / 2;
+      if (MET.nextE == null) { MET.nextE = Math.max(0, Math.ceil((nowH - MET.start - 15) / eMs)); MET.firstE = MET.nextE; }
+      for (let guard = 0; guard < 64; guard++) {
+        const tH = MET.start + MET.nextE * eMs;
+        if (tH > horizon + 100) break;
+        if (tH >= nowH - 15) chEighthOn(ONCH.seq, MET.bpm, MET.nextE, audibleAt(tH - (isHostClock() ? 0 : MET.offset)), MET.firstE);
+        MET.nextE++;
+      }
     }
   }
   function metroFrame() {
@@ -3006,6 +3128,7 @@ const LESSONS = [
     if (isHostClock() || MET.synced) {
       const idx = Math.floor((hostNow() - MET.start) / (60000 / MET.bpm));
       if (idx !== MET.lastBeat) { MET.lastBeat = idx; paintBeat(idx >= 0 ? idx % MET.beats : -1); }
+      if (ONCH.on) ocShow();
     }
     MET.raf = requestAnimationFrame(metroFrame);
   }
@@ -3060,7 +3183,9 @@ const LESSONS = [
   });
   $('mtMeter').addEventListener('change', e => { metroChange({ beats: Number(e.target.value) }); e.target.blur(); });
   function metroReset() {
-    Object.assign(MET, { on: false, start: 0, v: 0, nextIdx: null, offset: 0, samples: [], synced: false, err: 0 });
+    Object.assign(MET, { on: false, start: 0, v: 0, nextIdx: null, nextE: null, offset: 0, samples: [], synced: false, err: 0 });
+    Object.assign(ONCH, { on: false, sel: 'oudou', ids: ['oudou'], key: 0, seq: null, last: -2 });
+    if (typeof ocRender === 'function') ocRender();
     clearInterval(MET.timer); clearInterval(MET.resend); cancelAnimationFrame(MET.raf);
     paintBeat(-1);
   }
@@ -3099,6 +3224,259 @@ const LESSONS = [
     $('frToggle').textContent = LM.on ? '停止' : '開始';
   }
   function lmPaint(i) { const d = $('frBeats').children; for (let k = 0; k < d.length; k++) d[k].classList.toggle('on', k === i); }
+  // ---- chord backing (plays on the free-play metronome's grid) ----
+  const CH_PROGS = [
+    { id: 'oudou', name: '王道進行', chords: [['FM7', 4], ['G7', 4], ['Em7', 4], ['Am', 4]] },
+    { id: 'canon', name: 'カノン進行', chords: [['C', 2], ['G', 2], ['Am', 2], ['Em', 2], ['F', 2], ['C', 2], ['F', 2], ['G', 2]] },
+    { id: 'komuro', name: '小室進行', chords: [['Am', 4], ['F', 4], ['G', 4], ['C', 4]] },
+    { id: 'punk', name: 'Ⅰ–Ⅴ–Ⅵm–Ⅳ', chords: [['C', 4], ['G', 4], ['Am', 4], ['F', 4]] },
+    { id: 'marusa', name: '丸サ進行', chords: [['FM7', 4], ['E7', 4], ['Am7', 4], ['Gm7', 2], ['C7', 2]] },
+    { id: '1625', name: '循環コード', chords: [['C', 4], ['Am', 4], ['Dm', 4], ['G', 4]] },
+    { id: '251', name: 'ツーファイブ', chords: [['Dm7', 4], ['G7', 4], ['CM7', 8]] },
+    { id: 'blues', name: '12小節ブルース', chords: [['C7', 16], ['F7', 8], ['C7', 8], ['G7', 4], ['F7', 4], ['C7', 4], ['G7', 4]] },
+  ];
+  const CH_KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+  const NAMES_S = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const NAMES_F = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+  const FLAT_KEYS = new Set([1, 3, 5, 8, 10]);
+  const QUALITY = { '': [0, 4, 7], m: [0, 3, 7], '7': [0, 4, 7, 10], M7: [0, 4, 7, 11], m7: [0, 3, 7, 10] };
+  const PCS = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  const CH = Object.assign({ on: false, prog: 'oudou', key: 0, tone: 'pad', rhythm: 'q', bass: true, click: true, vol: 70, queue: [] }, prefs.chord || {}, { on: false });
+  if (!Array.isArray(CH.queue)) CH.queue = [];
+  const saveCH = () => { prefs.chord = { prog: CH.prog, key: CH.key, tone: CH.tone, rhythm: CH.rhythm, bass: CH.bass, click: CH.click, vol: CH.vol, queue: CH.queue }; savePrefs(); };
+  const chParse = sym => { const m = /^([A-G])(M7|m7|m|7)?$/.exec(sym); return { root: PCS[m[1]], q: m[2] || '' }; };
+  const chName = (sym, key) => { key = key == null ? CH.key : key; const c = chParse(sym); return (FLAT_KEYS.has(key) ? NAMES_F : NAMES_S)[(c.root + key) % 12] + c.q; };
+  const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
+  // voice each chord close to the previous one so the harmony moves smoothly
+  function chVoice(sym, prev, key) {
+    key = key == null ? CH.key : key;
+    const c = chParse(sym), root = (c.root + key) % 12;
+    const pcs = QUALITY[c.q].map(i => (root + i) % 12);
+    const target = prev ? prev.reduce((a, b) => a + b, 0) / prev.length : 62;
+    let best = null;
+    for (let inv = 0; inv < pcs.length; inv++) {
+      const order = pcs.slice(inv).concat(pcs.slice(0, inv));
+      for (let base = 52; base <= 63; base++) {
+        if (base % 12 !== order[0]) continue;
+        const notes = [base];
+        for (let k = 1; k < order.length; k++) { let n = notes[k - 1] + 1; while (n % 12 !== order[k]) n++; notes.push(n); }
+        if (notes[notes.length - 1] > 76) continue;
+        const mean = notes.reduce((a, b) => a + b, 0) / notes.length;
+        const score = Math.abs(mean - target) + Math.abs(mean - 62) * 0.3;
+        if (!best || score < best.score) best = { score, notes };
+      }
+    }
+    return { notes: best.notes, bass: 36 + root };
+  }
+  function chBuildSeq(ids, key) {
+    const list = [];
+    ids.forEach(id => { const P = CH_PROGS.find(x => x.id === id); if (P) P.chords.forEach(([sym, beats]) => list.push({ sym, beats, prog: id })); });
+    let prev = null, pos = 0;
+    list.forEach(x => { const v = chVoice(x.sym, prev, key); x.notes = v.notes; x.bass = v.bass; x.start = pos; pos += x.beats; prev = v.notes; });
+    return { list, total: pos };
+  }
+  function chBuild() {
+    const ids = CH.prog === 'queue' ? (CH.queue.length ? CH.queue : ['oudou']) : [CH.prog];
+    CH.seq = chBuildSeq(ids, CH.key);
+    CH.last = -2;
+  }
+  // audio: one shared filter/envelope per chord hit, smooth envelopes (no clicks)
+  let chG = null, chGCtx = null;
+  function chGraph() {
+    if (!chG || chGCtx !== ctx) {
+      chGCtx = ctx;
+      const syn = ctx.createGain(), bass = ctx.createGain();
+      syn.connect(master); bass.connect(master);
+      chG = { c: ctx, syn, bass };
+    }
+    const v = CH.vol / 100, lvl = v * v * 1.3;
+    chG.syn.gain.value = 0.42 * lvl; chG.bass.gain.value = 0.5 * lvl;
+    return chG;
+  }
+  function chEnv(p, t, peak, attack, hold, release) {
+    p.setValueAtTime(0, t);
+    p.linearRampToValueAtTime(peak, t + attack);
+    if (hold > attack) p.setValueAtTime(peak, t + hold);
+    p.setTargetAtTime(0, t + Math.max(hold, attack), release / 4);
+    return t + Math.max(hold, attack) + release + 0.02;
+  }
+  const CH_SYN = {
+    pad(g, notes, t, d) {
+      const c = g.c, lp = c.createBiquadFilter(), v = c.createGain();
+      lp.type = 'lowpass'; lp.frequency.value = 1500; lp.Q.value = 0.4;
+      const end = chEnv(v.gain, t, 0.13, Math.min(0.12, d * 0.35), Math.max(0.05, d - 0.05), 0.3);
+      lp.connect(v); v.connect(g.syn);
+      notes.forEach(n => [-7, 7].forEach(cents => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midiHz(n); o.detune.value = cents; o.connect(lp); o.start(t); o.stop(end); }));
+    },
+    ep(g, notes, t, d) {
+      const c = g.c, v = c.createGain(), len = Math.min(Math.max(0.2, d), 2), end = t + len + 0.3;
+      v.gain.setValueAtTime(0, t);
+      v.gain.linearRampToValueAtTime(0.2, t + 0.008);
+      v.gain.setTargetAtTime(0.07, t + 0.008, 0.18);
+      v.gain.setTargetAtTime(0, t + len, 0.05);
+      v.connect(g.syn);
+      notes.forEach(n => {
+        const f = midiHz(n), car = c.createOscillator(), mod = c.createOscillator(), mg = c.createGain();
+        car.type = 'sine'; car.frequency.value = f; mod.type = 'sine'; mod.frequency.value = f;
+        mg.gain.setValueAtTime(f * 1.1, t); mg.gain.setTargetAtTime(f * 0.12, t, 0.12);
+        mod.connect(mg); mg.connect(car.frequency); car.connect(v);
+        car.start(t); mod.start(t); car.stop(end); mod.stop(end);
+      });
+    },
+    pluck(g, notes, t, d) {
+      const c = g.c, lp = c.createBiquadFilter(), v = c.createGain();
+      lp.type = 'lowpass'; lp.Q.value = 2.5;
+      lp.frequency.setValueAtTime(3600, t); lp.frequency.setTargetAtTime(500, t, 0.06);
+      const end = chEnv(v.gain, t, 0.15, 0.006, 0.02, Math.min(Math.max(0.1, d), 0.4));
+      lp.connect(v); v.connect(g.syn);
+      notes.forEach(n => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midiHz(n); o.connect(lp); o.start(t); o.stop(end); });
+    },
+  };
+  function chBass(g, m, t, d) {
+    const c = g.c, o = c.createOscillator(), lp = c.createBiquadFilter(), v = c.createGain();
+    o.type = 'triangle'; o.frequency.value = midiHz(m);
+    lp.type = 'lowpass'; lp.frequency.value = 600;
+    const end = chEnv(v.gain, t, 0.55, 0.008, Math.max(0.05, d - 0.06), 0.08);
+    o.connect(lp); lp.connect(v); v.connect(g.bass);
+    o.start(t); o.stop(end);
+  }
+  const chChordAt = (seq, posBeats) => seq.list.find(x => posBeats >= x.start - 1e-9 && posBeats < x.start + x.beats - 1e-9);
+  function chEighth(k, t) { chEighthOn(CH.seq, LM.bpm, k, t, LM.firstE); }
+  // one eighth note of backing for any sequence/tempo (free play and online share this)
+  function chEighthOn(seq, bpm, k, t, firstE) {
+    if (!seq || !seq.total) return;
+    const g = chGraph(), beat = 60 / bpm, eighth = beat / 2;
+    const pos = (k / 2) % seq.total, ch = chChordAt(seq, pos);
+    if (!ch) return;
+    const isStart = Math.abs(pos - ch.start) < 1e-6, onBeat = k % 2 === 0;
+    const syn = CH_SYN[CH.tone] || CH_SYN.pad;
+    if (CH.rhythm === 'hold' && (isStart || k === firstE)) syn(g, ch.notes, t, (ch.start + ch.beats - pos) * beat);
+    if (CH.rhythm === 'q' && onBeat) syn(g, ch.notes, t, beat * 0.9);
+    if (CH.rhythm === 'e') syn(g, ch.notes, t, eighth * 0.85);
+    if (CH.rhythm === 'off' && !onBeat) syn(g, ch.notes, t, eighth * 0.8);
+    if (CH.bass && onBeat) chBass(g, ch.bass, t, beat * 0.92);
+  }
+  function chShow(force) {
+    const box = $('chNowBox');
+    if (!CH.on || !LM.on || !CH.seq) { box.classList.add('off'); $('chNow').textContent = CH.seq && CH.seq.list[0] ? chName(CH.seq.list[0].sym) : '—'; $('chNext').textContent = ''; return; }
+    const beats = (performance.now() - LM.start) / (60000 / LM.bpm);
+    if (beats < 0) return;
+    const pos = beats % CH.seq.total, i = CH.seq.list.findIndex(x => pos >= x.start && pos < x.start + x.beats);
+    if (i === CH.last && !force) return;
+    CH.last = i;
+    box.classList.remove('off');
+    const cur = CH.seq.list[i], nx = CH.seq.list[(i + 1) % CH.seq.list.length];
+    $('chNow').textContent = chName(cur.sym);
+    $('chNext').textContent = '→ ' + chName(nx.sym);
+  }
+  function chRenderBar() {
+    $('chOn').setAttribute('aria-pressed', String(CH.on));
+    $('chProg').innerHTML = CH_PROGS.map(P => '<option value="' + P.id + '"' + (CH.prog === P.id ? ' selected' : '') + '>' + P.name + '</option>').join('') +
+      (CH.queue.length ? '<option value="queue"' + (CH.prog === 'queue' ? ' selected' : '') + '>つなげた進行（' + CH.queue.length + '）</option>' : '');
+    if (CH.prog === 'queue' && !CH.queue.length) { CH.prog = 'oudou'; $('chProg').value = 'oudou'; }
+    $('chKey').innerHTML = CH_KEYS.map((k, i) => '<option value="' + i + '"' + (i === CH.key ? ' selected' : '') + '>' + k + '</option>').join('');
+    chShow(true);
+  }
+  function chRenderSheet() {
+    const seg = (id, val) => document.querySelectorAll('#' + id + ' [data-v]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === String(val))));
+    seg('chTone', CH.tone); seg('chRhythm', CH.rhythm); seg('chBass', CH.bass ? 1 : 0); seg('chClick', CH.click ? 1 : 0);
+    $('chVol').value = CH.vol; $('chVolOut').textContent = CH.vol;
+    $('chQueue').innerHTML = CH.queue.length
+      ? CH.queue.map((id, i) => '<button type="button" data-qi="' + i + '" aria-label="' + CH_PROGS.find(x => x.id === id).name + 'を外す">' + (i + 1) + '. ' + CH_PROGS.find(x => x.id === id).name + ' <span>×</span></button>').join('')
+      : '<span class="empty">まだ追加されていません</span>';
+    $('chAdd').innerHTML = CH_PROGS.map(P => '<button type="button" data-add="' + P.id + '">＋ ' + P.name + '<small>' + P.chords.map(c => chName(c[0])).join(' ') + '</small></button>').join('');
+  }
+  function chChanged() { saveCH(); chBuild(); LM.nextE = null; chRenderBar(); if (ON.inRoom && ON.isHost && ONCH.sel === 'queue') ocChange({}); else if (ON.inRoom) ocRender(); }
+  $('chOn').addEventListener('click', () => {
+    ensureCtx(); if (ctx.state !== 'running') ctx.resume();
+    CH.on = !CH.on;
+    LM.nextE = null;
+    if (CH.on && !LM.on) lmChange({ on: true });
+    chRenderBar(); $('chOn').blur();
+  });
+  $('chProg').addEventListener('change', e => { CH.prog = e.target.value; chChanged(); e.target.blur(); });
+  $('chKey').addEventListener('change', e => { CH.key = Number(e.target.value); chChanged(); e.target.blur(); });
+  const chordDlg = $('chordDlg');
+  $('chMore').addEventListener('click', () => { chRenderSheet(); chordDlg.hidden = false; $('chClose').focus(); });
+  $('chClose').addEventListener('click', () => (chordDlg.hidden = true));
+  chordDlg.addEventListener('click', e => {
+    if (e.target === chordDlg) { chordDlg.hidden = true; return; }
+    const sg = e.target.closest('.seg [data-v]');
+    if (sg) {
+      const id = sg.parentElement.id, v = sg.dataset.v;
+      if (id === 'chTone') { CH.tone = v; if (!LM.on) { ensureCtx(); ctx.resume(); CH_SYN[v](chGraph(), chVoice('C', null).notes, ctx.currentTime + 0.05, 1.2); } }
+      if (id === 'chRhythm') CH.rhythm = v;
+      if (id === 'chBass') CH.bass = v === '1';
+      if (id === 'chClick') CH.click = v === '1';
+      saveCH(); chRenderSheet(); return;
+    }
+    const q = e.target.closest('[data-qi]');
+    if (q) { CH.queue.splice(Number(q.dataset.qi), 1); chChanged(); chRenderSheet(); return; }
+    const a = e.target.closest('[data-add]');
+    if (a) { CH.queue.push(a.dataset.add); CH.prog = 'queue'; chChanged(); chRenderSheet(); }
+  });
+  $('chVol').addEventListener('input', e => { CH.vol = Number(e.target.value); $('chVolOut').textContent = CH.vol; if (chG) chGraph(); saveCH(); });
+  chBuild();
+  chRenderBar();
+
+  // ---- online room chord row ----
+  function ocRebuild() { ONCH.seq = chBuildSeq(ONCH.ids, ONCH.key); ONCH.last = -2; }
+  function ocShow(force) {
+    const box = $('ocNowBox');
+    if (!ONCH.seq) ocRebuild();
+    if (!ONCH.on || !MET.on || (!ON.isHost && !MET.synced)) {
+      box.classList.add('off');
+      $('ocNow').textContent = ONCH.seq.list[0] ? chName(ONCH.seq.list[0].sym, ONCH.key) : '—';
+      $('ocNext').textContent = '';
+      return;
+    }
+    const beats = (hostNow() - MET.start) / (60000 / MET.bpm);
+    if (beats < 0) return;
+    const pos = beats % ONCH.seq.total, i = ONCH.seq.list.findIndex(x => pos >= x.start && pos < x.start + x.beats);
+    if (i === ONCH.last && !force) return;
+    ONCH.last = i;
+    box.classList.remove('off');
+    $('ocNow').textContent = chName(ONCH.seq.list[i].sym, ONCH.key);
+    $('ocNext').textContent = '→ ' + chName(ONCH.seq.list[(i + 1) % ONCH.seq.list.length].sym, ONCH.key);
+  }
+  function ocRender() {
+    const host = ON.isHost;
+    $('ocOn').setAttribute('aria-pressed', String(ONCH.on));
+    $('ocOn').disabled = !host;
+    const qn = host ? CH.queue.length : (ONCH.sel === 'queue' ? ONCH.ids.length : 0);
+    $('ocProg').innerHTML = CH_PROGS.map(P => '<option value="' + P.id + '"' + (ONCH.sel === P.id ? ' selected' : '') + '>' + P.name + '</option>').join('') +
+      (qn ? '<option value="queue"' + (ONCH.sel === 'queue' ? ' selected' : '') + '>つなげた進行（' + qn + '）</option>' : '');
+    $('ocKey').innerHTML = CH_KEYS.map((k, i) => '<option value="' + i + '"' + (i === ONCH.key ? ' selected' : '') + '>' + k + '</option>').join('');
+    $('ocProg').disabled = $('ocKey').disabled = !host;
+    $('onChords').title = host ? 'コードの進行とキーはホストのあなたが決めます。音色などは「設定」で自分の端末だけ変えられます' : 'コードの進行とキーはホストが決めます。音色などは「設定」で自分の端末だけ変えられます';
+    ocShow(true);
+  }
+  // host changes: shared with everyone without moving the beat
+  function ocChange(patch) {
+    if (!ON.isHost) return;
+    Object.assign(ONCH, patch);
+    if (ONCH.sel === 'queue') ONCH.ids = CH.queue.length ? CH.queue.slice(0, 16) : ['oudou'];
+    else ONCH.ids = [ONCH.sel];
+    ocRebuild();
+    MET.v++;
+    MET.nextE = null;
+    ocRender();
+    metroBroadcast();
+  }
+  $('ocOn').addEventListener('click', () => {
+    if (!ON.isHost) return;
+    ensureCtx(); if (ctx.state !== 'running') ctx.resume();
+    const on = !ONCH.on;
+    ONCH.on = on;
+    if (on && !MET.on) metroChange({ on: true });
+    ocChange({ on });
+    $('ocOn').blur();
+  });
+  $('ocProg').addEventListener('change', e => { ocChange({ sel: e.target.value }); e.target.blur(); });
+  $('ocKey').addEventListener('change', e => { ocChange({ key: Number(e.target.value) }); e.target.blur(); });
+  $('ocMore').addEventListener('click', () => { chRenderSheet(); $('chordDlg').hidden = false; $('chClose').focus(); });
+  ocRender();
+
   function lmTick() {
     if (!LM.on || !ctx) return;
     const beatMs = 60000 / LM.bpm, nowP = performance.now();
@@ -3108,14 +3486,25 @@ const LESSONS = [
     for (let guard = 0; guard < 64; guard++) {
       const tP = LM.start + LM.nextIdx * beatMs;
       if (tP > horizon) break;
-      if (tP >= nowP - 15) metroClick(audibleAt(tP), LM.nextIdx % LM.beats === 0);
+      if (tP >= nowP - 15 && !(CH.on && !CH.click)) metroClick(audibleAt(tP), LM.nextIdx % LM.beats === 0);
       LM.nextIdx++;
+    }
+    if (CH.on) {
+      const eMs = beatMs / 2;
+      if (LM.nextE == null) { LM.nextE = Math.max(0, Math.ceil((nowP - LM.start - 15) / eMs)); LM.firstE = LM.nextE; }
+      for (let guard = 0; guard < 64; guard++) {
+        const tP = LM.start + LM.nextE * eMs;
+        if (tP > horizon + 100) break;
+        if (tP >= nowP - 15) chEighth(LM.nextE, audibleAt(tP));
+        LM.nextE++;
+      }
     }
   }
   function lmFrame() {
     if (!LM.on) return;
     const idx = Math.floor((performance.now() - LM.start) / (60000 / LM.bpm));
     if (idx !== LM.last) { LM.last = idx; lmPaint(idx >= 0 ? idx % LM.beats : -1); }
+    if (CH.on) chShow();
     LM.raf = requestAnimationFrame(lmFrame);
   }
   function lmRun() {
@@ -3124,16 +3513,16 @@ const LESSONS = [
     LM.timer = setInterval(lmTick, 25); lmTick();
     LM.raf = requestAnimationFrame(lmFrame);
   }
-  function lmStop() { if (!LM.on) return; LM.on = false; lmRun(); lmRender(); }
+  function lmStop() { if (!LM.on) return; LM.on = false; lmRun(); lmRender(); chShow(true); }
   // tempo or metre changes keep the pulse: the new bar starts on the next beat
   function lmChange(patch) {
     const now = performance.now(), oldBeat = 60000 / LM.bpm;
     if (LM.on) { const k = Math.floor((now - LM.start) / oldBeat); LM.start = Math.max(now + 120, LM.start + (k + 1) * oldBeat); }
     Object.assign(LM, patch);
     if (patch.on === true) LM.start = now + 350;
-    LM.nextIdx = null;
+    LM.nextIdx = null; LM.nextE = null;
     prefs.lmBpm = LM.bpm; prefs.lmBeats = LM.beats; savePrefs();
-    lmRun(); lmRender();
+    lmRun(); lmRender(); chShow(true);
   }
   $('frToggle').addEventListener('click', () => { ensureCtx(); if (ctx.state !== 'running') ctx.resume(); lmChange({ on: !LM.on }); $('frToggle').blur(); });
   $('frMeter').addEventListener('change', e => { lmChange({ beats: Number(e.target.value) }); e.target.blur(); });
@@ -3159,6 +3548,7 @@ const LESSONS = [
   /* ================= input ================= */
   window.addEventListener('keydown', e => {
     if (!settingsDlg.hidden) { if (capturing) { captureKey(e); return; } if (e.key === 'Escape') closeSettings(); return; }
+    if (!$('chordDlg').hidden) { if (e.key === 'Escape') $('chordDlg').hidden = true; return; }
     if (!resultDlg.hidden) { if (e.key === 'Escape') { if (view === 'edit') closeResult(); else backToLessons(); } return; }
     if (view === 'play' && e.key === 'Escape') { abortGame(); return; }
     if (view === 'edit') {
