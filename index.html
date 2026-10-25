@@ -220,6 +220,11 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
 .dname{margin:0; display:flex; align-items:baseline; gap:12px; font-size:24px; line-height:1.3; text-wrap:balance}
 .dnum{white-space:nowrap; font-family:var(--font-mono); font-size:14px; font-weight:500; color:var(--accent)}
 .tip{margin:0; max-width:62ch; font-size:14px; line-height:1.8}
+.acc-line{margin:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px; font-size:13px}
+.acc-line span{font-size:11px; font-weight:700; letter-spacing:.06em; color:var(--muted); margin-right:4px}
+.acc-line b{font-family:var(--font-mono); font-weight:500}
+.acc-line i{font-style:normal; color:var(--line)}
+.acc-line.off b{color:var(--muted); text-decoration:line-through}
 .score{display:flex; flex-direction:column; gap:10px; overflow-x:auto; padding:2px 0}
 .sg{display:grid; grid-template-columns:30px repeat(var(--div), minmax(var(--cw, 13px),1fr)); min-width:min-content}
 .sg > span{height:22px; display:grid; place-items:center; border-bottom:1px solid var(--line)}
@@ -276,6 +281,7 @@ kbd{font-family:var(--font-mono); font-size:11px; color:var(--muted); padding:1p
   border:1px solid var(--line); border-top:6px solid var(--lc); border-radius:14px; background:var(--surface);
 }
 .gpad.sub{flex-grow:.72}
+.gpad.crash{flex-grow:.6}
 .gp-name{font-family:var(--font-display); font-weight:800; font-size:16px; letter-spacing:.06em; text-align:center; line-height:1.1; pointer-events:none}
 .gpad kbd{pointer-events:none}
 .gp-short{display:none; font-family:var(--font-display); font-weight:800; font-size:24px; letter-spacing:.04em; pointer-events:none}
@@ -709,6 +715,9 @@ button.pl{cursor:pointer}
     </label>
     <label class="srow" for="clickVol"><span>音量</span><input id="clickVol" type="range" min="0" max="100" value="80"><output id="clickVolOut">80</output></label>
     <p class="note">レッスンのカウントとメトロノーム、曲で練習のカウント、フリー演奏とオンラインのメトロノームに使います。1拍目は高い音、ほかの拍は低い音で鳴ります。</p>
+    <h3>レッスンの伴奏</h3>
+    <label class="srow" for="accVol"><span>音量</span><input id="accVol" type="range" min="0" max="100" value="60"><output id="accVolOut">60</output></label>
+    <p class="note">レッスンで流れるコードとベースの音量です。伴奏のあり・なしは各レッスンの画面で切り替えます。</p>
     <h3>表示</h3>
     <label class="srow" for="barPad"><span>画面下の余白</span>
       <select id="barPad"><option value="auto">自動</option><option value="0">なし</option><option value="40">小</option><option value="72">中</option><option value="110">大</option></select><span></span>
@@ -895,6 +904,44 @@ const LESSONS = [
     p: { crash: 'x---x---x---x---', snare: '-x-x-x-x-x-x-x-x', kick: 'x-x-x-x-x-x-x-x-' } },
 ];
 /*__LESSONS_END__*/
+// Backing band for each lesson: chords are one bar each ("|"), a bar can hold two chords ("Gm7 C7").
+// style picks the instrument and how it plays (see ACC_STYLES); kime = pattern bars where the band hits with the crashes.
+const LESSON_ACC = {
+  '1-1': { style: 'pad',     chords: 'C | G | Am | F' },
+  '1-2': { style: 'pop',     chords: 'G | Em | C | D' },
+  '1-3': { style: 'pad',     chords: 'D | A | Bm | G' },
+  '1-4': { style: 'rock8',   chords: 'A | E | F#m | D' },
+  '2-1': { style: 'pop8',    chords: 'C | Am | F | G' },
+  '2-2': { style: 'pop8',    chords: 'G | D | Em | C' },
+  '2-3': { style: 'ballad',  chords: 'FM7 | G7 | Em7 | Am' },
+  '2-4': { style: 'rock8',   chords: 'D | A | Bm | G' },
+  '3-1': { style: 'ep2',     chords: 'Dm7 | G7 | CM7 | Am7' },
+  '3-2': { style: 'citypop', chords: 'FM7 | E7 | Am7 | Gm7 C7' },
+  '3-3': { style: 'funk',    chords: 'Em7 | A7' },
+  '4-1': { style: 'pop8',    chords: 'E | B | C#m | A' },
+  '4-2': { style: 'disco',   chords: 'Am7 | Dm7' },
+  '4-3': { style: 'disco',   chords: 'Dm7 | G7 | Em7 | Am7' },
+  '5-1': { style: 'shuffle', chords: 'A7 | D7 | A7 | A7 | D7 | D7 | A7 | A7 | E7 | D7 | A7 | E7' },
+  '5-2': { style: 'arp',     chords: 'C | Am | F | G' },
+  '6-1': { style: 'rock8',   chords: 'D | Bm | G | A' },
+  '6-2': { style: 'rock8',   chords: 'A | F#m | D | E' },
+  '6-3': { style: 'shuffle', chords: 'E7 | A7 | E7 | B7' },
+  '7-1': { style: 'rock8',   chords: 'C | G | Am | F' },
+  '7-2': { style: 'pop8',    chords: 'Em | C | G | D' },
+  '7-3': { style: 'metal',   chords: 'A5 | F5 | G5 | E5' },
+  '8-1': { style: 'ep2',     chords: 'Dm7 | G7 | CM7 | A7' },
+  '8-2': { style: 'pad',     chords: 'Am | F | C | G' },
+  '8-3': { style: 'funk',    chords: 'Dm7 | G7' },
+  '8-4': { style: 'dnb',     chords: 'Am7 | FM7' },
+  '8-5': { style: 'latin',   chords: 'C | F | G | F' },
+  '9-1': { style: 'rock8',   chords: 'A | D E', kime: [1] },
+  '9-2': { style: 'rock8',   chords: 'Em | C | D | B7' },
+  '9-3': { style: 'rock8',   chords: 'C | G | Am | Em | F | C | F | G' },
+  '10-1': { style: 'odd',    chords: 'Dm | C | Bb | C' },
+  '10-2': { style: 'odd',    chords: 'Em | D | C | D' },
+  '11-1': { style: 'metal',  chords: 'E5 | C5 | D5 | B5' },
+  '11-2': { style: 'blast',  chords: 'E5 | F5 | E5 | G5' },
+};
 
 (() => {
   'use strict';
@@ -909,6 +956,8 @@ const LESSONS = [
     setRaw(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
   };
   const prefs = Object.assign({ metro: true, bars: 8, calib: 0, last: null }, store.get('browser-drum-prefs', {}));
+  if (prefs.acc == null) prefs.acc = true;
+  if (prefs.accVol == null) prefs.accVol = 60;
   const savePrefs = () => store.set('browser-drum-prefs', prefs);
   const progress = store.get('browser-drum-progress', {}) || {};
   const saveProgress = () => store.set('browser-drum-progress', progress);
@@ -972,7 +1021,7 @@ const LESSONS = [
   };
   applyKeys();
   const LANE_ORDER = ['crash', 'open', 'closed', 'snare', 'kick', 'pedal']; // notation: top to bottom
-  const PAD_ORDER = ['open', 'closed', 'pedal', 'snare', 'crash', 'kick'];   // touch pads: left to right
+  const PAD_ORDER = ['crash', 'open', 'closed', 'pedal', 'snare', 'kick'];   // touch pads: left to right (crash sits beside the hi-hat, as on a real kit)
 
   /* ================= audio engine ================= */
   const MODES = {
@@ -1518,6 +1567,7 @@ const LESSONS = [
   function renderDetail() {
     const L = byId(sel.id);
     if (L.isSong) { renderSongDetail(L); return; }
+    const spec = accSpec(L);
     detailEl.innerHTML =
       '<button class="back" type="button" data-act="back">← レッスン一覧</button>' +
       '<p class="eyebrow">STEP ' + L.step + ' · ' + STEP_NAMES[L.step] + (L.meter ? ' · ' + L.meter + '拍子' : '') + '</p>' +
@@ -1537,7 +1587,12 @@ const LESSONS = [
           '<button class="segb" type="button" data-act="metro" data-v="1" aria-pressed="' + prefs.metro + '">あり</button>' +
           '<button class="segb" type="button" data-act="metro" data-v="0" aria-pressed="' + !prefs.metro + '">なし</button>' +
         '</div></div>' +
+        (spec ? '<div class="opt"><span class="opt-label">伴奏</span><div class="seg">' +
+          '<button class="segb" type="button" data-act="acc" data-v="1" aria-pressed="' + prefs.acc + '">あり</button>' +
+          '<button class="segb" type="button" data-act="acc" data-v="0" aria-pressed="' + !prefs.acc + '">なし</button>' +
+        '</div></div>' : '') +
       '</div>' +
+      (spec ? '<p class="acc-line' + (prefs.acc ? '' : ' off') + '"><span>伴奏・' + ACC_STYLES[spec.style].label + '</span>' + accBars(spec).map(b => '<b>' + b.join(' ') + '</b>').join('<i>|</i>') + '</p>' : '') +
       '<div class="actions"><button class="btn primary big" type="button" data-act="start">スタート</button>' +
         '<button class="btn" type="button" data-act="demo">お手本を聴く</button></div>' +
       '<p class="record">' + recordText(L) + '</p>' +
@@ -1557,6 +1612,7 @@ const LESSONS = [
     }
     if (act === 'bars') { prefs.bars = Number(b.dataset.n); savePrefs(); renderDetail(); return; }
     if (act === 'metro') { prefs.metro = b.dataset.v === '1'; savePrefs(); renderDetail(); return; }
+    if (act === 'acc') { prefs.acc = b.dataset.v === '1'; savePrefs(); renderDetail(); return; }
     if (act === 'rate') { prefs.songRate = Number(b.dataset.r); savePrefs(); renderDetail(); return; }
     if (act === 'edit') { openEditor(byId(sel.id).chart); return; }
     if (act === 'part' || act === 'preset') {
@@ -1583,7 +1639,7 @@ const LESSONS = [
   const JLABEL = { perfect: 'PERFECT', great: 'GREAT', good: 'GOOD', miss: 'MISS' };
   const COL = {
     bg: '#12151A', lane: '#181C22', laneAlt: '#14181D', grid: '#232931', beat: '#38404B', bar: '#6A7482',
-    text: '#8D97A5', hit: '#F2B24C', miss: '#5D6672',
+    text: '#8D97A5', hit: '#F2B24C', miss: '#5D6672', chord: '#9DB8FF',
     crash: '#FF9F43', open: '#F0CF6A', closed: '#E3B341', pedal: '#C9A85A', snare: '#EEF2F7', kick: '#E5544B',
   };
   const JCOL = { perfect: '#F2B24C', great: '#4CC38A', good: '#79AEFF', miss: '#7D8794' };
@@ -1620,7 +1676,7 @@ const LESSONS = [
     PAD_ORDER.filter(k => L.lanes.includes(k)).forEach(k => {
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'gpad' + (LANE[k].main ? '' : ' sub');
+      b.className = 'gpad' + (LANE[k].main ? '' : ' sub') + (k === 'crash' ? ' crash' : '');
       b.style.setProperty('--lc', 'var(--g-' + k + ')');
       b.setAttribute('aria-label', LANE[k].jp);
       b.innerHTML = '<span class="gp-flash"></span><span class="gp-name">' + LANE[k].label + '</span><span class="gp-short">' + LANE[k].short + '</span><kbd>' + LANE[k].cap + '</kbd>';
@@ -1746,11 +1802,18 @@ const LESSONS = [
     for (let i = 0; i < L.beats; i++) events.push({ t: -barDur + i * beat, click: true, acc: acc(i), level: 1 });
     if (prefs.metro) for (let i = 0; i < totalBars * L.beats; i++) events.push({ t: i * beat, click: true, acc: acc(i), level: 0.6 });
     if (auto) notes.forEach(n => events.push({ t: n.t, id: n.lane, gain: 1 }));
+    let band = null, bandBus = null;
+    if (prefs.acc && accSpec(L)) {
+      bandBus = accBus();
+      band = accPlan(L, totalBars, step, bandBus);
+      if (band) band.events.forEach(e => events.push(e));
+    }
     events.sort((a, b) => a.t - b.t);
 
     const lastT = notes.length ? notes[notes.length - 1].t : 0;
     G = {
       L, auto, bpm, beat, step, barDur, totalBars, notes, laneNotes, laneHead, events, ev: 0, autoIdx: 0,
+      band: bandBus, bandMarks: band ? band.marks : null,
       t0: ctx.currentTime + 0.4 + barDur,
       endT: Math.max(totalBars * barDur, lastT + WIN.good) + 0.35,
       stats: { perfect: 0, great: 0, good: 0, miss: 0 }, combo: 0, maxCombo: 0, extra: 0,
@@ -1769,12 +1832,137 @@ const LESSONS = [
     requestWakeLock();
   }
 
+  /* ================= lesson backing band (chords + bass on the lesson grid) ================= */
+  const ACC_STYLES = {
+    pad:     { label: 'パッド',         tone: 'pad',   comp: 'hold',    bass: 'kick' },
+    pop:     { label: 'エレピ',         tone: 'ep',    comp: 'quarter', bass: 'kick' },
+    ep2:     { label: 'エレピ',         tone: 'ep',    comp: 'half',    bass: 'kick' },
+    ballad:  { label: 'バラード',       tone: 'ep',    comp: 'half',    bass: 'kickHold' },
+    pop8:    { label: 'ポップス',       tone: 'pluck', comp: 'eighth',  bass: 'kick' },
+    rock8:   { label: 'ロック',         tone: 'pluck', comp: 'eighth',  bass: 'eighth' },
+    citypop: { label: 'シティポップ',   tone: 'ep',    comp: 'pat:x-----x---x-----', bass: 'kick' },
+    funk:    { label: 'ファンク',       tone: 'pluck', comp: 'pat:--x--x----x--x--', bass: 'kick' },
+    disco:   { label: 'ディスコ',       tone: 'pluck', comp: 'off',     bass: 'octave' },
+    shuffle: { label: 'ブルース',       tone: 'ep',    comp: 'shuffle', bass: 'boogie' },
+    arp:     { label: '3連のアルペジオ', tone: 'ep',   comp: 'arp',     bass: 'kickHold' },
+    latin:   { label: 'ソン（ラテン）', tone: 'ep',    comp: 'pat:--x-x--x--x-x--x', bass: 'tumbao' },
+    metal:   { label: 'メタル',         tone: 'power', comp: 'kick',    bass: 'kick' },
+    blast:   { label: 'メタル',         tone: 'power', comp: 'hold',    bass: 'hold' },
+    odd:     { label: '変拍子',         tone: 'ep',    comp: 'groups',  bass: 'kick' },
+    dnb:     { label: 'ドラムンベース', tone: 'pad',   comp: 'hold',    bass: 'kickHold' },
+  };
+  const accSpec = L => (!L || L.isSong ? null : LESSON_ACC[L.id] || null);
+  const accBars = spec => spec.chords.split('|').map(b => b.trim().split(/\s+/));
+  // power chords sit low (root, fifth, octave); everything else uses the free-play voicing
+  function accVoice(sym, prev, power) {
+    const c = chParse(sym);
+    if (power || c.q === '5') { const r = 40 + ((c.root + 8) % 12); return { notes: [r, r + 7, r + 12], bass: 36 + c.root }; }
+    return chVoice(sym, prev, 0);
+  }
+  let distCurve = null;
+  function accPower(g, notes, t, d) {
+    const c = g.c, pre = c.createGain(), ws = c.createWaveShaper(), lp = c.createBiquadFilter(), v = c.createGain();
+    if (!distCurve) { distCurve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 511.5 - 1; distCurve[i] = Math.tanh(x * 2.2) / Math.tanh(2.2); } }
+    ws.curve = distCurve; pre.gain.value = 0.55;
+    const short = d < 0.22;
+    lp.type = 'lowpass'; lp.Q.value = 0.7; lp.frequency.value = short ? 1100 : 2200;
+    const end = chEnv(v.gain, t, short ? 0.2 : 0.16, 0.004, Math.max(0.03, d - 0.03), short ? 0.05 : 0.18);
+    pre.connect(ws); ws.connect(lp); lp.connect(v); v.connect(g.syn);
+    notes.forEach(n => [-8, 8].forEach(cents => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midiHz(n); o.detune.value = cents; o.connect(pre); o.start(t); o.stop(end); }));
+  }
+  function accBus() {
+    const bus = ctx.createGain(), syn = ctx.createGain(), bass = ctx.createGain();
+    const v = prefs.accVol / 100, lvl = v * v * 1.3;
+    syn.gain.value = 0.42 * lvl; bass.gain.value = 0.5 * lvl;
+    syn.connect(bus); bass.connect(bus); bus.connect(master);
+    return { c: ctx, bus, syn, bass };
+  }
+  const BOOGIE = [0, 4, 7, 9, 10, 9, 7, 4];
+  // Turns a lesson + its backing spec into timed audio events and chord labels for the scroll view.
+  function accPlan(L, totalBars, step, ag) {
+    const spec = accSpec(L);
+    if (!spec) return null;
+    const S = ACC_STYLES[spec.style], power = S.tone === 'power';
+    const div = L.div, spb = L.spb, beats = L.beats, end = totalBars * div;
+    let prev = null;
+    const voiced = accBars(spec).map(parts => parts.map(sym => { const v = accVoice(sym, prev, power); prev = v.notes; return { sym, notes: v.notes, bass: v.bass, minor: chParse(sym).q === 'm' || chParse(sym).q === 'm7' }; }));
+    const chordAt = abs => { const b = Math.floor(abs / div), parts = voiced[b % voiced.length]; return parts[Math.min(parts.length - 1, Math.floor(((abs - b * div) / div) * parts.length))]; };
+    const partStarts = b => voiced[b % voiced.length].map((_, i, a) => Math.round((i * div) / a.length));
+    const hitsOf = (lane, b) => { const p = L.pattern[lane]; if (!p) return null; const s = p[b % L.bars], out = []; for (let i = 0; i < div; i++) if (s[i] === 'x') out.push(i); return out; };
+    const swing = spb % 3 === 0 && spb % 2 !== 0;
+    const eighths = () => { const out = []; for (let k = 0; k < beats; k++) { if (swing) out.push(k * spb, k * spb + (spb * 2) / 3); else if (spb % 2 === 0) out.push(k * spb, k * spb + spb / 2); else out.push(k * spb); } return out; };
+    const kime = new Set(spec.kime || []);
+    const comp = [], bass = [];
+    for (let b = 0; b < totalBars; b++) {
+      const o = b * div;
+      if (kime.has(b % L.bars)) {
+        const hits = hitsOf('crash', b) || [0];
+        hits.forEach((s, i) => { const d = Math.min((i + 1 < hits.length ? hits[i + 1] : div) - s, spb) * 0.8; comp.push({ s: o + s, d }); bass.push({ s: o + s, d }); });
+        continue;
+      }
+      const c = S.comp, add = (s, d, x) => comp.push(Object.assign({ s: o + s, d }, x));
+      if (c === 'hold') partStarts(b).forEach(s => add(s));
+      else if (c === 'quarter') for (let k = 0; k < beats; k++) add(k * spb);
+      else if (c === 'half') { for (let k = 0; k < beats; k += 2) add(k * spb); }
+      else if (c === 'eighth') eighths().forEach(s => add(s, null, { cap: swing ? spb / 3 : spb / 2 }));
+      else if (c === 'off') for (let k = 0; k < beats; k++) add(k * spb + spb / 2, (spb / 2) * 0.8);
+      else if (c === 'shuffle') for (let k = 0; k < beats; k++) { add(k * spb, ((spb * 2) / 3) * 0.9); add(k * spb + (spb * 2) / 3, (spb / 3) * 0.9); }
+      else if (c === 'arp') for (let s = 0; s < div; s++) add(s, 2, { arp: s });
+      else if (c === 'groups') L.accents.forEach(k => add(k * spb));
+      else if (c === 'kick') (hitsOf('kick', b) || [0]).forEach(s => add(s, null, { cap: spb / 2 }));
+      else if (c.startsWith('pat:')) { const p = c.slice(4); for (let s = 0; s < div; s++) if ((s * p.length) % div === 0 && p[(s * p.length) / div] === 'x') add(s, null, { cap: spb * 0.75 }); }
+      // a chord that changes mid-bar is always struck where it changes
+      if (c === 'hold' || c === 'half' || c === 'groups' || c === 'quarter' || c.startsWith('pat:')) partStarts(b).forEach(s => { if (!comp.some(x => x.s === o + s)) add(s); });
+
+      let bm = S.bass;
+      if ((bm === 'kick' || bm === 'kickHold') && !L.pattern.kick) bm = 'half';
+      if (bm === 'kick' || bm === 'kickHold') hitsOf('kick', b).forEach(s => bass.push({ s: o + s, cap: bm === 'kick' ? spb : spb * 2 }));
+      else if (bm === 'half') for (let k = 0; k < beats; k += 2) bass.push({ s: o + k * spb });
+      else if (bm === 'hold') partStarts(b).forEach(s => bass.push({ s: o + s }));
+      else if (bm === 'eighth') eighths().forEach(s => bass.push({ s: o + s, cap: spb / 2 }));
+      else if (bm === 'octave') eighths().forEach((s, i) => bass.push({ s: o + s, iv: i % 2 ? 12 : 0, d: (spb / 2) * 0.8 }));
+      else if (bm === 'boogie') eighths().forEach((s, i) => bass.push({ s: o + s, iv: BOOGIE[i % 8], d: (i % 2 ? spb / 3 : (spb * 2) / 3) * 0.95 }));
+      else if (bm === 'tumbao') { bass.push({ s: o + (spb * 3) / 2, iv: 7 }); bass.push({ s: o + spb * 3, from: o + div }); }
+    }
+    // missing durations: up to the next hit of the same part, capped
+    const fill = (arr, defCap) => {
+      arr.sort((a, b) => a.s - b.s);
+      arr.forEach((x, i) => { if (x.d == null) { const gap = (i + 1 < arr.length ? arr[i + 1].s : end) - x.s; x.d = Math.min(gap, x.cap || defCap) * 0.92; } });
+    };
+    fill(comp, Infinity); fill(bass, spb * 4);
+    const syn = S.tone === 'power' ? accPower : CH_SYN[S.tone] || CH_SYN.pad;
+    const events = [];
+    comp.forEach(x => {
+      const ch = chordAt(x.s), dur = x.d * step;
+      if (x.arp != null) {
+        const n = ch.notes.slice(0, 3), seq = [n[0], n[1], n[2], n[0] + 12, n[2], n[1]];
+        events.push({ t: x.s * step, band: w => CH_SYN.ep(ag, [seq[x.arp % 6]], w, dur) });
+      } else events.push({ t: x.s * step, band: w => syn(ag, ch.notes, w, dur) });
+    });
+    bass.forEach(x => {
+      if (x.s >= end) return;
+      const ch = chordAt(x.from != null ? Math.min(x.from, end - 1) : x.s);
+      let iv = x.iv || 0;
+      if (iv === 4 && ch.minor) iv = 3;
+      events.push({ t: x.s * step, band: w => chBass(ag, ch.bass + iv, w, x.d * step) });
+    });
+    // the band lands on the key chord after the last bar
+    const home = voiced[0][0];
+    events.push({ t: end * step, band: w => { syn(ag, home.notes, w, 1.6); chBass(ag, home.bass, w, 1.4); } });
+    // chord names for the scroll view: one label wherever the harmony changes
+    const marks = [];
+    for (let b = 0; b < totalBars; b++) partStarts(b).forEach(s => { const ch = chordAt(b * div + s); if (!marks.length || marks[marks.length - 1].name !== ch.sym) marks.push({ t: (b * div + s) * step, name: ch.sym }); });
+    return { events, marks, label: S.label };
+  }
+
   function schedule() {
     if (!G) return;
     const horizon = ctx.currentTime + 0.12;
     while (G.ev < G.events.length && G.t0 + G.events[G.ev].t < horizon) {
       const e = G.events[G.ev++];
-      if (e.click) metroClick(G.t0 + e.t, e.acc, e.level); else trigger(e.id, G.t0 + e.t, e.gain);
+      if (e.click) metroClick(G.t0 + e.t, e.acc, e.level);
+      else if (e.band) { try { e.band(G.t0 + e.t); } catch (err) {} }
+      else trigger(e.id, G.t0 + e.t, e.gain);
     }
   }
 
@@ -1922,6 +2110,17 @@ const LESSONS = [
       }
     }
 
+    if (g.bandMarks) {
+      c.textAlign = 'left'; c.font = '700 13px ' + FONT_M; c.fillStyle = COL.chord;
+      for (const m of g.bandMarks) {
+        if (m.t < tMin - g.barDur || m.t > tMax) continue;
+        const x = X(m.t);
+        if (x + 40 < g.labelW) continue;
+        c.fillText(m.name, x + 8, 12);
+      }
+      c.textAlign = 'center';
+    }
+
     c.strokeStyle = rgba(COL.hit, 0.5); c.lineWidth = 2;
     c.beginPath(); c.moveTo(g.judgeX, gridTop); c.lineTo(g.judgeX, gridBot); c.stroke();
     g.rows.forEach(r => {
@@ -2021,6 +2220,15 @@ const LESSONS = [
         G.song.sg.gain.setTargetAtTime(0, now, ring ? 0.5 : 0.06);
         G.song.src.stop(now + (ring ? 2.5 : 0.4));
       } catch (e) {}
+    }
+    if (G && G.band && ctx) {
+      const now = ctx.currentTime, bus = G.band.bus;
+      try {
+        bus.gain.cancelScheduledValues(now);
+        bus.gain.setValueAtTime(bus.gain.value, now);
+        bus.gain.setTargetAtTime(0, now + (ring ? 0.6 : 0), ring ? 0.7 : 0.03);
+      } catch (e) {}
+      setTimeout(() => { try { bus.disconnect(); } catch (e) {} }, ring ? 6000 : 500);
     }
     clearInterval(schedTimer);
     cancelAnimationFrame(rafId);
@@ -2271,6 +2479,9 @@ const LESSONS = [
   applyBarPad();
   $('barPad').addEventListener('change', e => { prefs.barPad = e.target.value === 'auto' ? null : Number(e.target.value); savePrefs(); applyBarPad(); });
   $('clickType').value = prefs.clickType;
+  $('accVol').value = prefs.accVol;
+  $('accVolOut').textContent = prefs.accVol;
+  $('accVol').addEventListener('input', e => { prefs.accVol = Number(e.target.value); $('accVolOut').textContent = prefs.accVol; savePrefs(); });
   $('clickVol').value = prefs.clickVol;
   $('clickVolOut').textContent = prefs.clickVol;
   $('clickType').addEventListener('change', e => { prefs.clickType = e.target.value; savePrefs(); });
@@ -3239,12 +3450,12 @@ const LESSONS = [
   const NAMES_S = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   const NAMES_F = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
   const FLAT_KEYS = new Set([1, 3, 5, 8, 10]);
-  const QUALITY = { '': [0, 4, 7], m: [0, 3, 7], '7': [0, 4, 7, 10], M7: [0, 4, 7, 11], m7: [0, 3, 7, 10] };
+  const QUALITY = { '': [0, 4, 7], m: [0, 3, 7], '7': [0, 4, 7, 10], M7: [0, 4, 7, 11], m7: [0, 3, 7, 10], '5': [0, 7] };
   const PCS = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
   const CH = Object.assign({ on: false, prog: 'oudou', key: 0, tone: 'pad', rhythm: 'q', bass: true, click: true, vol: 70, queue: [] }, prefs.chord || {}, { on: false });
   if (!Array.isArray(CH.queue)) CH.queue = [];
   const saveCH = () => { prefs.chord = { prog: CH.prog, key: CH.key, tone: CH.tone, rhythm: CH.rhythm, bass: CH.bass, click: CH.click, vol: CH.vol, queue: CH.queue }; savePrefs(); };
-  const chParse = sym => { const m = /^([A-G])(M7|m7|m|7)?$/.exec(sym); return { root: PCS[m[1]], q: m[2] || '' }; };
+  const chParse = sym => { const m = /^([A-G])([#b]?)(M7|m7|m|7|5)?$/.exec(sym); return { root: (PCS[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? 11 : 0)) % 12, q: m[3] || '' }; };
   const chName = (sym, key) => { key = key == null ? CH.key : key; const c = chParse(sym); return (FLAT_KEYS.has(key) ? NAMES_F : NAMES_S)[(c.root + key) % 12] + c.q; };
   const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
   // voice each chord close to the previous one so the harmony moves smoothly
